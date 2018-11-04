@@ -7,3 +7,6 @@ bin/
 # Ignore github imported packages
 src/github.com
 src/gopkg.in
+
+# Ignore review folder
+review/
