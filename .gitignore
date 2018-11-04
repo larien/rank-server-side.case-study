@@ -1,0 +1,9 @@
+# Ignore pkg folder
+pkg/
+
+# Ignore bin folder
+bin/
+
+# Ignore github imported packages
+src/github.com
+src/gopkg.in
