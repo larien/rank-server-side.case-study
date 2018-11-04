@@ -7,11 +7,15 @@ Server-side code for Rank, a game review webapp. Project assigned to Lauren Ferr
 1. Technologies
 2. Domain Driven Design
 3. Architecture
+4. Useful commands
 
 ## Technologies
 
-- Go
-- MongoDB
+- Server-side: [Go](https://golang.org/)
+- Database: [MongoDB](https://www.mongodb.com/)
+- Router: [Gin](https://github.com/gin-gonic/gin)
+- Testing: [Testify](https://github.com/stretchr/testify)
+
 
 ## Domain Driven Design
 
@@ -20,3 +24,11 @@ Server-side code for Rank, a game review webapp. Project assigned to Lauren Ferr
 ## Architecture
 
 [Available here](https://docs.google.com/presentation/d/1NH4MO2jpQqeA6e5S5kc4Rm53hldadl02HEhDqEecSks/edit?usp=sharing)
+
+## Useful commands
+
+```console
+export GOPATH=/home/larien/Rank/ferrei28-server-side
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+go get -u <package path>
+```
