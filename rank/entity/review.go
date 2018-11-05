@@ -8,12 +8,12 @@ import (
 
 // Review represents the review entity and its attributes.
 type Review struct {
-	ID              bson.Identifier `bson:"_id,omitempty"`
-	Title           string
-	AuthorNickname  string
-	AverageRating   int
-	PublicationDate time.Time
-	ReadingTime     int
-	TextReview      string
-	ThumbnailURL    string
+	ID              util.Identifier `bson:"_id,omitempty" json:"id"`
+	Title           string          `bson:"title" json:"title"`
+	AuthorNickname  string          `bson:"author_nickname" json:"author_nickname"`
+	AverageRating   int             `bson:"average_rating" json:"average_rating"`
+	PublicationDate time.Time       `bson:"publication_date" json:"publication_date"`
+	ReadingTime     int             `bson:"reading_time" json:"reading_time"`
+	TextReview      string          `bson:"text_review" json:"text_review"`
+	CoverImage      string          `bson:"cover_image" json:"cover_image"`
 }
