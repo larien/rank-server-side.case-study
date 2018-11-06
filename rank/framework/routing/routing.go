@@ -2,23 +2,24 @@ package routing
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/controller"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/delivery"
 )
 
 // Router sets up routing for Rank app.
-func Router() *gin.Engine {
+func Router(r *controller.Review) *gin.Engine {
 	router := setup()
 
-	endpoints(router)
+	endpoints(router, r)
 
 	return router
 }
 
 // endpoints receives endpoints from each entity from Delivery layer.
-func endpoints(router *gin.Engine) {
+func endpoints(router *gin.Engine, r controller.ReviewController) {
 	v1 := router.Group("/api/v1")
 	{
-		delivery.Review(v1)
+		delivery.NewReviewHandler(v1, r)
 	}
 }
 

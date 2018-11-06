@@ -1,21 +1,17 @@
 package repository
 
 import (
-	"github.com/juju/mgosession"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
 	mgo "gopkg.in/mgo.v2"
 )
 
-//NewReviewRepository create new repository
-func NewReviewRepository(p *mgosession.Pool, db string) ReviewRepository {
-	return &mongo{
-		pool: p,
-		db:   db,
-	}
+type ReviewRepository interface {
+	FindAll() ([]*entity.Review, error)
+	Store(*entity.Review) (util.Identifier, error)
 }
 
-func (m *mongo) FindAll() ([]*entity.Review, error) {
+func (m *MongoConn) FindAll() ([]*entity.Review, error) {
 	var reviews []*entity.Review
 
 	session := m.pool.Session(nil)
@@ -29,4 +25,14 @@ func (m *mongo) FindAll() ([]*entity.Review, error) {
 	default:
 		return nil, err
 	}
+}
+
+func (r *MongoConn) Store(v *entity.Review) (util.Identifier, error) {
+	session := r.pool.Session(nil)
+	coll := session.DB(r.db).C("review")
+	err := coll.Insert(v)
+	if err != nil {
+		return "", err
+	}
+	return v.ID, nil
 }
