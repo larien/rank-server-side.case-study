@@ -76,3 +76,32 @@ func TestStore(t *testing.T) {
 		assert.Equal(t, 1, len(reviews))
 	})
 }
+
+func TestGetByID(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+
+	controller := newReviewController(repo)
+
+	t.Run("should return Review from inserted ID", func(t *testing.T) {
+		r1 := &entity.Review{
+			Title: "Title Test",
+		}
+
+		id := controller.Store(r1)
+		assert.Equal(t, true, util.IsValidID(id.String()))
+
+		review, err := controller.GetByID(id)
+		assert.Equal(t, true, util.IsValidID(review.ID.String()))
+		assert.Equal(t, review.Title, "Title Test")
+		assert.Nil(t, err)
+	})
+}

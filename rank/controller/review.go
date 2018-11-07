@@ -15,6 +15,7 @@ type Review struct {
 type ReviewController interface {
 	FindAll() ([]*entity.Review, error)
 	Store(*entity.Review) util.Identifier
+	GetByID(util.Identifier) (*entity.Review, error)
 }
 
 // newReviewController creates a new Review Controller.
@@ -32,4 +33,9 @@ func (r *Review) FindAll() ([]*entity.Review, error) {
 // Store inserts a new Review in the database.
 func (r *Review) Store(review *entity.Review) util.Identifier {
 	return r.Repository.Store(review)
+}
+
+// GetByID inserts a new Review in the database.
+func (r *Review) GetByID(id util.Identifier) (*entity.Review, error) {
+	return r.Repository.GetByID(id)
 }
