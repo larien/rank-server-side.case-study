@@ -78,3 +78,33 @@ func TestStore(t *testing.T) {
 		assert.Equal(t, true, util.IsValidID(id.String()))
 	})
 }
+
+func TestFindByID(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := NewMongoConnection(pool, config.MONGODB_DATABASE)
+
+	t.Run("should find certain Review by stored ID", func(t *testing.T) {
+
+		r1 := &entity.Review{
+			Title: "Title Test",
+		}
+
+		id := m.Store(r1)
+
+		review, err := m.FindByID(id)
+		assert.Equal(t, "Title Test", review.Title)
+		assert.Nil(t, err)
+		assert.NotNil(t, id)
+		assert.Equal(t, id, review.ID)
+		assert.Equal(t, true, util.IsValidID(id.String()))
+		assert.Equal(t, true, util.IsValidID(review.ID.String()))
+	})
+}

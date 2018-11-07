@@ -36,3 +36,15 @@ func (m *MongoConn) Store(review *entity.Review) util.Identifier {
 
 	return review.ID
 }
+
+// FindByID finds a Review by its ID.
+func (m *MongoConn) FindByID(id util.Identifier) (*entity.Review, error) {
+	session := m.pool.Session(nil)
+	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
+
+	var review *entity.Review
+
+	coll.FindId(id).One(&review)
+
+	return review, nil
+}
