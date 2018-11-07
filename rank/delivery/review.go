@@ -1,7 +1,6 @@
 package delivery
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/controller"
@@ -10,6 +9,7 @@ import (
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
 )
 
+// ReviewHandler contains injected interface from Controller layer.
 type ReviewHandler struct {
 	Controller controller.ReviewController
 }
@@ -19,34 +19,65 @@ func NewReviewHandler(version *gin.RouterGroup, r controller.ReviewController) {
 	handler := &ReviewHandler{
 		Controller: r,
 	}
+
 	endpoints := version.Group("/review")
 	{
-		endpoints.GET("/", handler.fetchAllReviews)
-		endpoints.POST("/", handler.postReview)
+		endpoints.GET("", handler.fetchAllReviews)
+		endpoints.POST("", handler.postReview)
 	}
 }
 
+// fetchAllReviews is the handler for GET /review endpoint.
 func (r *ReviewHandler) fetchAllReviews(c *gin.Context) {
-	c.String(200, "Hello, Rank!")
-
 	reviews, err := r.Controller.FindAll()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "Failed to get reviews", "error": err})
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "Failed to get reviews",
+				"error":   err,
+			})
 	}
-	fmt.Printf("Reviews: %+v", reviews)
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "reviews": reviews})
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status":  http.StatusOK,
+			"reviews": reviews,
+		})
 }
 
+// postReview is the handler for POST /review endpoint.
 func (r *ReviewHandler) postReview(c *gin.Context) {
-	review := entity.Review{Title: c.PostForm("title")}
-	fmt.Printf("Review recebida: %+v", review)
+	var review entity.Review
 
-	// chama função no controller
-	id, err := r.Controller.Store(&review)
+	err := c.BindJSON(&review)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "Failed to create review", "error": err})
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "Failed to parse json", "error": err,
+			})
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "message": "Review created successfully!", "id": id})
+	id, err := r.Controller.Store(&review)
+	if err != nil {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "Failed to create review",
+				"error":   err,
+			})
+	}
+
+	c.JSON(
+		http.StatusCreated,
+		gin.H{
+			"status":  http.StatusCreated,
+			"message": "Review created successfully!",
+			"id":      id,
+		})
 }
