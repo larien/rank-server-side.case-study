@@ -20,20 +20,20 @@ func main() {
 // Rank starts the routine for Rank's app.
 func Rank() {
 
-	// repo := database.Repository()
-
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	defer session.Close()
 
-	mPool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
-	defer mPool.Close()
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
 
-	repo := repository.NewMongoConnection(mPool, config.MONGODB_DATABASE)
-	cont := controller.NewReviewController(repo)
-	router := routing.Router(cont)
+	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+
+	controllers := controller.GetAll(repo)
+
+	router := routing.Router(controllers)
 
 	router.Run(port)
 }
