@@ -31,7 +31,7 @@ func Rank() {
 
 	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
 
-	controllers := controller.GetAll(repo)
+	controllers := controller.New(repo)
 
 	router := routing.Router(controllers)
 
