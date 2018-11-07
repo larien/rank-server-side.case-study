@@ -15,9 +15,9 @@ type ReviewHandler struct {
 }
 
 // NewReviewHandler prepares endpoints for Review entity.
-func NewReviewHandler(version *gin.RouterGroup, r controller.ReviewController) {
+func NewReviewHandler(version *gin.RouterGroup, c controller.ReviewController) {
 	handler := &ReviewHandler{
-		Controller: r,
+		Controller: c,
 	}
 
 	endpoints := version.Group("/review")
@@ -38,6 +38,7 @@ func (r *ReviewHandler) fetchAllReviews(c *gin.Context) {
 				"message": "Failed to get reviews",
 				"error":   err,
 			})
+		return
 	}
 
 	c.JSON(
@@ -60,18 +61,10 @@ func (r *ReviewHandler) postReview(c *gin.Context) {
 				"status":  http.StatusInternalServerError,
 				"message": "Failed to parse json", "error": err,
 			})
+		return
 	}
 
-	id, err := r.Controller.Store(&review)
-	if err != nil {
-		c.JSON(
-			http.StatusInternalServerError,
-			gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": "Failed to create review",
-				"error":   err,
-			})
-	}
+	id := r.Controller.Store(&review)
 
 	c.JSON(
 		http.StatusCreated,
