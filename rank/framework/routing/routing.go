@@ -7,19 +7,19 @@ import (
 )
 
 // Router sets up routing for Rank app.
-func Router(r *controller.Review) *gin.Engine {
+func Router(controllers *controller.Controllers) *gin.Engine {
 	router := setup()
 
-	endpoints(router, r)
+	endpoints(router, controllers)
 
 	return router
 }
 
 // endpoints receives endpoints from each entity from Delivery layer.
-func endpoints(router *gin.Engine, r controller.ReviewController) {
+func endpoints(router *gin.Engine, controllers *controller.Controllers) {
 	v1 := router.Group("/api/v1")
 	{
-		delivery.NewReviewHandler(v1, r)
+		delivery.NewReviewHandler(v1, controllers.Review)
 	}
 }
 
