@@ -6,8 +6,9 @@ import (
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
 )
 
-type ReviewRepository struct {
-	Repository repository.ReviewRepository
+// Review contains the injected Review interface from Repository layer.
+type Review struct {
+	Repository repository.Review
 }
 
 // ReviewController contains methods that must be implemented by the injected layer.
@@ -17,18 +18,18 @@ type ReviewController interface {
 }
 
 // newReviewController creates a new Review Controller.
-func newReviewController(m *repository.MongoConn) *ReviewRepository {
-	return &ReviewRepository{
+func newReviewController(m *repository.MongoConn) *Review {
+	return &Review{
 		Repository: m,
 	}
 }
 
 // FindAll returns all reviews from database.
-func (r *ReviewRepository) FindAll() ([]*entity.Review, error) {
+func (r *Review) FindAll() ([]*entity.Review, error) {
 	return r.Repository.FindAll()
 }
 
 // Store inserts a new Review in the database.
-func (r *ReviewRepository) Store(review *entity.Review) (util.Identifier, error) {
+func (r *Review) Store(review *entity.Review) (util.Identifier, error) {
 	return r.Repository.Store(review)
 }
