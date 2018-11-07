@@ -4,20 +4,20 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// Identifier type
+// Identifier type.
 type Identifier bson.ObjectId
 
-// ToString convert an ID in a string
+// ToString convert ID to string.
 func (i Identifier) String() string {
 	return bson.ObjectId(i).Hex()
 }
 
-// MarshalJSON will marshal ID to Json
+// MarshalJSON marshals ID to JSON.
 func (i Identifier) MarshalJSON() ([]byte, error) {
 	return bson.ObjectId(i).MarshalJSON()
 }
 
-// UnmarshalJSON will convert a string to an ID
+// UnmarshalJSON converts data to ID.
 func (i *Identifier) UnmarshalJSON(data []byte) error {
 	s := string(data)
 	s = s[1 : len(s)-1]
@@ -47,12 +47,12 @@ func (i *Identifier) SetBSON(raw bson.Raw) error {
 	return bsonErr
 }
 
-//StringToID convert a string to an ID
+// StringToID converts a string to ID.
 func StringToID(s string) Identifier {
 	return Identifier(bson.ObjectIdHex(s))
 }
 
-//IsValidID check if is a valid ID
+// IsValidID checks if ID is valid.
 func IsValidID(s string) bool {
 	return bson.IsObjectIdHex(s)
 }
