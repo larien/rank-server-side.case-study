@@ -10,6 +10,7 @@ import (
 type Review interface {
 	FindAll() ([]*entity.Review, error)
 	Store(*entity.Review) util.Identifier
+	GetByID(util.Identifier) (*entity.Review, error)
 }
 
 // FindAll returns all Reviews from the database sorted by ID.
@@ -37,8 +38,8 @@ func (m *MongoConn) Store(review *entity.Review) util.Identifier {
 	return review.ID
 }
 
-// FindByID finds a Review by its ID.
-func (m *MongoConn) FindByID(id util.Identifier) (*entity.Review, error) {
+// GetByID finds a Review by its ID.
+func (m *MongoConn) GetByID(id util.Identifier) (*entity.Review, error) {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
