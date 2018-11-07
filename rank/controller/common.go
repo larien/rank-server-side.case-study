@@ -6,7 +6,7 @@ import (
 
 // Controllers contains the controllers for each entity.
 type Controllers struct {
-	Review repository.ReviewRepository
+	Review repository.Review
 }
 
 // New creates new controllers.
