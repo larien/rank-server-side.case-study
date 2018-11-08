@@ -11,6 +11,7 @@ type Review interface {
 	FindAll() ([]*entity.Review, error)
 	Store(*entity.Review) (util.Identifier, error)
 	GetByID(util.Identifier) (*entity.Review, error)
+	// DeleteByID(util.Identifier) error
 }
 
 // FindAll returns all Reviews from the database sorted by ID.
@@ -48,4 +49,9 @@ func (m *MongoConn) GetByID(id util.Identifier) (*entity.Review, error) {
 	coll.FindId(id).One(&review)
 
 	return review, nil
+}
+
+// DeleteByID deletes a Review by its ID.
+func (m *MongoConn) DeleteByID(id util.Identifier) error {
+	return m.pool.Session(nil).DB(m.db).C(config.REVIEW_COLLECTION).RemoveId(id)
 }

@@ -67,7 +67,8 @@ func TestStore(t *testing.T) {
 			Title: "Title 1",
 		}
 
-		id := m.Store(r1)
+		// TODO
+		id, _ := m.Store(r1)
 
 		reviews, errFindAll := m.FindAll()
 
@@ -97,14 +98,49 @@ func TestFindByID(t *testing.T) {
 			Title: "Title Test",
 		}
 
-		id := m.Store(r1)
+		// TODO
+		id, _ := m.Store(r1)
 
-		review, err := m.FindByID(id)
+		review, err := m.GetByID(id)
 		assert.Equal(t, "Title Test", review.Title)
 		assert.Nil(t, err)
 		assert.NotNil(t, id)
 		assert.Equal(t, id, review.ID)
 		assert.Equal(t, true, util.IsValidID(id.String()))
 		assert.Equal(t, true, util.IsValidID(review.ID.String()))
+	})
+}
+
+func TestDeleteByID(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := NewMongoConnection(pool, config.MONGODB_DATABASE)
+
+	t.Run("should delete certain Review by stored ID", func(t *testing.T) {
+
+		r1 := &entity.Review{
+			Title: "Title Test",
+		}
+
+		// TODO
+		id, _ := m.Store(r1)
+
+		review, errGetByID := m.GetByID(id)
+		assert.Equal(t, id, review.ID)
+		assert.Nil(t, errGetByID)
+
+		err := m.DeleteByID(id)
+		assert.Nil(t, err)
+
+		review, errGetByID2 := m.GetByID(id)
+		assert.Nil(t, review)
+		assert.Nil(t, errGetByID2)
 	})
 }
