@@ -17,6 +17,7 @@ type ReviewController interface {
 	Store(*entity.Review) (util.Identifier, error)
 	GetByID(util.Identifier) (*entity.Review, error)
 	DeleteByID(util.Identifier) error
+	Update(*entity.Review) error
 }
 
 // newReviewController creates a new Review Controller.
@@ -47,6 +48,6 @@ func (r *Review) DeleteByID(id util.Identifier) error {
 }
 
 // Update updates an existing Review in the database.
-func (r *Review) UpdateByID(review *entity.Review) error {
-	return r.Repository.UpdateByID(review)
+func (r *Review) Update(review *entity.Review) error {
+	return r.Repository.Update(review)
 }
