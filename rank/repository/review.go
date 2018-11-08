@@ -8,15 +8,20 @@ import (
 
 // Review defines the methods must be implemented by injected layer.
 type Review interface {
-	FindAll() ([]*entity.Review, error)
-	Store(*entity.Review) (util.Identifier, error)
-	GetByID(util.Identifier) (*entity.Review, error)
 	DeleteByID(util.Identifier) error
+	FindAll() ([]*entity.Review, error)
+	GetByID(util.Identifier) (*entity.Review, error)
+	Store(*entity.Review) (util.Identifier, error)
 	Update(*entity.Review) error
 }
 
+// DeleteByID deletes a Review by its ID.
+func (m *MongoDB) DeleteByID(id util.Identifier) error {
+	return m.pool.Session(nil).DB(m.db).C(config.REVIEW_COLLECTION).RemoveId(id)
+}
+
 // FindAll returns all Reviews from the database sorted by ID.
-func (m *MongoConn) FindAll() ([]*entity.Review, error) {
+func (m *MongoDB) FindAll() ([]*entity.Review, error) {
 	var reviews []*entity.Review
 
 	session := m.pool.Session(nil)
@@ -28,20 +33,8 @@ func (m *MongoConn) FindAll() ([]*entity.Review, error) {
 	return reviews, nil
 }
 
-// Store inserts a new Review in the database.
-func (m *MongoConn) Store(review *entity.Review) (util.Identifier, error) {
-	session := m.pool.Session(nil)
-	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
-
-	review.ID = util.NewID()
-
-	coll.Insert(review)
-
-	return review.ID, nil
-}
-
 // GetByID finds a Review by its ID.
-func (m *MongoConn) GetByID(id util.Identifier) (*entity.Review, error) {
+func (m *MongoDB) GetByID(id util.Identifier) (*entity.Review, error) {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
@@ -52,16 +45,23 @@ func (m *MongoConn) GetByID(id util.Identifier) (*entity.Review, error) {
 	return review, nil
 }
 
-// DeleteByID deletes a Review by its ID.
-func (m *MongoConn) DeleteByID(id util.Identifier) error {
-	return m.pool.Session(nil).DB(m.db).C(config.REVIEW_COLLECTION).RemoveId(id)
-}
-
-// Update updates a new Review in the database.
-func (m *MongoConn) Update(review *entity.Review) error {
+// Store inserts a new Review in the database.
+func (m *MongoDB) Store(review *entity.Review) (util.Identifier, error) {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
-	_, err := coll.UpsertId(review.ID, review)
+	review.ID = util.NewID()
+
+	coll.Insert(review)
+
+	return review.ID, nil
+}
+
+// Update updates a new Review in the database.
+func (m *MongoDB) Update(review *entity.Review) error {
+	session := m.pool.Session(nil)
+	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
+
+	_, err := coll.UpsertId(review.ID, review) // TODO - avoid null Reviews
 	return err
 }

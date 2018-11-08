@@ -31,7 +31,7 @@ func Rank() {
 	defer pool.Close()
 	log.Printf("Pool with MongoDB session set")
 
-	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+	repo := repository.New(pool, config.MONGODB_DATABASE)
 	log.Printf("Repository layer created")
 
 	controllers := controller.New(repo)
