@@ -105,3 +105,33 @@ func TestGetByID(t *testing.T) {
 		assert.Nil(t, err)
 	})
 }
+
+func TestDeleteByID(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+
+	controller := newReviewController(repo)
+
+	t.Run("should delete Review from inserted ID", func(t *testing.T) {
+		r1 := &entity.Review{
+			Title: "Title Test",
+		}
+
+		id, _ := controller.Store(r1) // TODO
+
+		err := controller.DeleteByID(id)
+		assert.Nil(t, err)
+
+		review, errGetByID := controller.GetByID(id)
+		assert.Nil(t, review)
+		assert.Nil(t, errGetByID)
+	})
+}
