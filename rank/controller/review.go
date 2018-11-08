@@ -14,7 +14,7 @@ type Review struct {
 // ReviewController contains methods that must be implemented by the injected layer.
 type ReviewController interface {
 	FindAll() ([]*entity.Review, error)
-	Store(*entity.Review) util.Identifier
+	Store(*entity.Review) (util.Identifier, error)
 	GetByID(util.Identifier) (*entity.Review, error)
 }
 
@@ -31,7 +31,7 @@ func (r *Review) FindAll() ([]*entity.Review, error) {
 }
 
 // Store inserts a new Review in the database.
-func (r *Review) Store(review *entity.Review) util.Identifier {
+func (r *Review) Store(review *entity.Review) (util.Identifier, error) {
 	return r.Repository.Store(review)
 }
 
