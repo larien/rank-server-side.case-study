@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
@@ -28,6 +29,7 @@ func NewReviewHandler(version *gin.RouterGroup, c controller.ReviewController) {
 		endpoints.POST("", review.post)
 		endpoints.GET("/:id", review.getByID)
 		endpoints.DELETE("/:id", review.deleteByID)
+		endpoints.PATCH("", review.patch)
 	}
 }
 
@@ -148,5 +150,34 @@ func (r *ReviewHandler) deleteByID(c *gin.Context) {
 		http.StatusOK,
 		gin.H{
 			"status": http.StatusOK,
+		})
+}
+
+// patch is the handler for PATCH /review endpoint.
+func (r *ReviewHandler) patch(c *gin.Context) {
+	var review entity.Review
+
+	c.BindJSON(&review)
+	// TODO
+	// err := c.BindJSON(&review)
+	// if err != nil {
+	// 	c.JSON(
+	// 		http.StatusInternalServerError,
+	// 		gin.H{
+	// 			"status":  http.StatusInternalServerError,
+	// 			"message": "Failed to parse json", "error": err,
+	// 		})
+	// 	return
+	// }
+
+	fmt.Printf("Review recebido: %+v", review)
+
+	r.Controller.Update(&review)
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status":  http.StatusOK,
+			"message": "Review updated successfully!",
 		})
 }
