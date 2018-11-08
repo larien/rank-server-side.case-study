@@ -45,3 +45,8 @@ func (r *Review) GetByID(id util.Identifier) (*entity.Review, error) {
 func (r *Review) DeleteByID(id util.Identifier) error {
 	return r.Repository.DeleteByID(id)
 }
+
+// Update updates an existing Review in the database.
+func (r *Review) UpdateByID(review *entity.Review) error {
+	return r.Repository.UpdateByID(review)
+}

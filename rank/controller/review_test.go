@@ -135,3 +135,42 @@ func TestDeleteByID(t *testing.T) {
 		assert.Nil(t, errGetByID)
 	})
 }
+
+func TestUpdate(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+
+	controller := newReviewController(repo)
+
+	// TODO - change to RemoveAll function from Repository layer
+	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
+
+	t.Run("should update Review title", func(t *testing.T) {
+
+		r1 := &entity.Review{
+			Title: "Title 1",
+		}
+
+		id, _ := controller.Store(r1) // TODO
+
+		review, errGetByID := controller.GetByID(id)
+		assert.Nil(t, errGetByID)
+		assert.Equal(t, "Title 1", review.Title)
+
+		review.Title = "Different title"
+		err := controller.UpdateByID(review)
+		assert.Nil(t, err)
+
+		updatedReview, errGetByID2 := controller.GetByID(id)
+		assert.Nil(t, errGetByID2)
+		assert.Equal(t, "Different title", updatedReview.Title)
+	})
+}
