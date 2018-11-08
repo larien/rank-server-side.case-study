@@ -11,8 +11,8 @@ Server-side code for Rank, a game review webapp. Project assigned to Lauren Ferr
 
 ## Technologies
 
-- Server-side: [Go](https://golang.org/)
-- Database: [MongoDB](https://www.mongodb.com/)
+- Server-side: [Go](https://golang.org/) version go1.10.4 linux/amd64
+- Database: [MongoDB](https://www.mongodb.com/) with [mgo](https://labix.org/mgo) as driver
 - Router: [Gin](https://github.com/gin-gonic/gin)
 - Testing: [Testify](https://github.com/stretchr/testify)
 
