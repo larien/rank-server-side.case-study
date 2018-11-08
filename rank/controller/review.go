@@ -39,3 +39,8 @@ func (r *Review) Store(review *entity.Review) (util.Identifier, error) {
 func (r *Review) GetByID(id util.Identifier) (*entity.Review, error) {
 	return r.Repository.GetByID(id)
 }
+
+// DeleteByID deletes a Review from the database by its ID.
+func (r *Review) DeleteByID(id util.Identifier) error {
+	return r.Repository.DeleteByID(id)
+}

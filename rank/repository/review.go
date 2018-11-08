@@ -11,7 +11,7 @@ type Review interface {
 	FindAll() ([]*entity.Review, error)
 	Store(*entity.Review) (util.Identifier, error)
 	GetByID(util.Identifier) (*entity.Review, error)
-	// DeleteByID(util.Identifier) error
+	DeleteByID(util.Identifier) error
 }
 
 // FindAll returns all Reviews from the database sorted by ID.
