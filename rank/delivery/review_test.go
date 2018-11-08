@@ -42,13 +42,24 @@ func TestEndpoint_Review(t *testing.T) {
 		NewReviewHandler(v1, controllers)
 	})
 
-	t.Run("should set Review endpoints", func(t *testing.T) {
+	t.Run("should set Review GET endpoint", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest(http.MethodGet, "/api/v1/review", nil)
 		router.ServeHTTP(w, req)
-
 		assert.Equal(t, http.StatusOK, w.Code)
 	})
+
+	// TODO
+	// t.Run("should set Review GET by ID endpoint", func(t *testing.T) {
+	// 	id := util.NewID()
+
+	// 	assert.NotNil(t, resp)
+	// 	assert.Equal(t, id.String(), resp.review.ID.String())
+
+	// 	assert.True(t, util.IsValidID(review.ID.String()))
+	// 	assert.Equal(t, id, review.ID)
+	// 	assert.Equal(t, http.StatusOK, w.Code)
+	// })
 
 	// TODO
 	// t.Run("shouldn't be able to parse json'", func(t *testing.T) {

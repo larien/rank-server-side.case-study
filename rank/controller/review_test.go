@@ -66,7 +66,7 @@ func TestStore(t *testing.T) {
 	}
 
 	t.Run("should return inserted ID", func(t *testing.T) {
-		id := controller.Store(r1)
+		id, _ := controller.Store(r1) // TODO
 		assert.Equal(t, true, util.IsValidID(id.String()))
 	})
 
@@ -96,7 +96,7 @@ func TestGetByID(t *testing.T) {
 			Title: "Title Test",
 		}
 
-		id := controller.Store(r1)
+		id, _ := controller.Store(r1) // TODO
 		assert.Equal(t, true, util.IsValidID(id.String()))
 
 		review, err := controller.GetByID(id)

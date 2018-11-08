@@ -9,7 +9,7 @@ import (
 // Review defines the methods must be implemented by injected layer.
 type Review interface {
 	FindAll() ([]*entity.Review, error)
-	Store(*entity.Review) util.Identifier
+	Store(*entity.Review) (util.Identifier, error)
 	GetByID(util.Identifier) (*entity.Review, error)
 }
 
@@ -27,7 +27,7 @@ func (m *MongoConn) FindAll() ([]*entity.Review, error) {
 }
 
 // Store inserts a new Review in the database.
-func (m *MongoConn) Store(review *entity.Review) util.Identifier {
+func (m *MongoConn) Store(review *entity.Review) (util.Identifier, error) {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
@@ -35,7 +35,7 @@ func (m *MongoConn) Store(review *entity.Review) util.Identifier {
 
 	coll.Insert(review)
 
-	return review.ID
+	return review.ID, nil
 }
 
 // GetByID finds a Review by its ID.
