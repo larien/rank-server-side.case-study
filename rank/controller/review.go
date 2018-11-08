@@ -16,6 +16,7 @@ type ReviewController interface {
 	FindAll() ([]*entity.Review, error)
 	Store(*entity.Review) (util.Identifier, error)
 	GetByID(util.Identifier) (*entity.Review, error)
+	DeleteByID(util.Identifier) error
 }
 
 // newReviewController creates a new Review Controller.

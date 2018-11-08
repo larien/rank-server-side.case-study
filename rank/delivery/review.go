@@ -27,6 +27,7 @@ func NewReviewHandler(version *gin.RouterGroup, c controller.ReviewController) {
 		endpoints.GET("", review.findAll)
 		endpoints.POST("", review.post)
 		endpoints.GET("/:id", review.getByID)
+		endpoints.DELETE("/:id", review.deleteByID)
 	}
 }
 
@@ -103,7 +104,7 @@ func (r *ReviewHandler) getByID(c *gin.Context) {
 			http.StatusInternalServerError,
 			gin.H{
 				"status":  http.StatusInternalServerError,
-				"message": "Failed to parse json",
+				"message": "Failed get Review",
 				"error":   err,
 			})
 		return
@@ -114,5 +115,38 @@ func (r *ReviewHandler) getByID(c *gin.Context) {
 		gin.H{
 			"status": http.StatusOK,
 			"review": review,
+		})
+}
+
+// deleteByID is the handler for DELETE /review/:id endpoint and deletes desired review.
+func (r *ReviewHandler) deleteByID(c *gin.Context) {
+	id := c.Param("id")
+	if !util.IsValidID(id) {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "Invalid ID",
+				"error":   util.ErrInvalidID,
+			})
+		return
+	}
+
+	bson := util.StringToID(id)
+	if err := r.Controller.DeleteByID(bson); err != nil {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "Failed to delete Review",
+				"error":   err,
+			})
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
 		})
 }
