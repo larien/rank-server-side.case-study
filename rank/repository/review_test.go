@@ -22,7 +22,7 @@ func TestFindAll(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	m := NewMongoConnection(pool, config.MONGODB_DATABASE)
+	m := New(pool, config.MONGODB_DATABASE)
 
 	t.Run("should have returned all reviews", func(t *testing.T) {
 		// TODO - change to RemoveAll function from Repository layer
@@ -40,7 +40,7 @@ func TestFindAll(t *testing.T) {
 	})
 
 	t.Run("should have returned error", func(t *testing.T) {
-		m = NewMongoConnection(pool, "otherdatabase")
+		m = New(pool, "otherdatabase")
 		reviews, err := m.FindAll()
 		assert.NotNil(t, err)
 		assert.Nil(t, reviews)
@@ -57,7 +57,7 @@ func TestStore(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	m := NewMongoConnection(pool, config.MONGODB_DATABASE)
+	m := New(pool, config.MONGODB_DATABASE)
 
 	t.Run("should have inserted a new review", func(t *testing.T) {
 		// TODO - change to RemoveAll function from Repository layer
@@ -90,7 +90,7 @@ func TestFindByID(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	m := NewMongoConnection(pool, config.MONGODB_DATABASE)
+	m := New(pool, config.MONGODB_DATABASE)
 
 	t.Run("should find certain Review by stored ID", func(t *testing.T) {
 
@@ -121,7 +121,7 @@ func TestDeleteByID(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	m := NewMongoConnection(pool, config.MONGODB_DATABASE)
+	m := New(pool, config.MONGODB_DATABASE)
 
 	t.Run("should delete certain Review by stored ID", func(t *testing.T) {
 
@@ -155,7 +155,7 @@ func TestUpdate(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	m := NewMongoConnection(pool, config.MONGODB_DATABASE)
+	m := New(pool, config.MONGODB_DATABASE)
 
 	t.Run("should have updated a new review", func(t *testing.T) {
 		// TODO - change to RemoveAll function from Repository layer

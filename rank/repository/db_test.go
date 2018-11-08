@@ -21,7 +21,7 @@ func TestDB(t *testing.T) {
 	defer pool.Close()
 
 	t.Run("should have defined MongoDB connection", func(t *testing.T) {
-		m := NewMongoConnection(pool, config.MONGODB_DATABASE)
+		m := New(pool, config.MONGODB_DATABASE)
 
 		assert.NotNil(t, m)
 		assert.Equal(t, "rank", m.db)
