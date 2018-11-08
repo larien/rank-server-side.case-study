@@ -55,3 +55,12 @@ func (m *MongoConn) GetByID(id util.Identifier) (*entity.Review, error) {
 func (m *MongoConn) DeleteByID(id util.Identifier) error {
 	return m.pool.Session(nil).DB(m.db).C(config.REVIEW_COLLECTION).RemoveId(id)
 }
+
+// Update updates a new Review in the database.
+func (m *MongoConn) Update(review *entity.Review) error {
+	session := m.pool.Session(nil)
+	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
+
+	_, err := coll.UpsertId(review.ID, review)
+	return err
+}
