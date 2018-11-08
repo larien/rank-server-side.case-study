@@ -21,7 +21,7 @@ type ReviewController interface {
 }
 
 // newReviewController creates a new Review Controller.
-func newReviewController(m *repository.MongoConn) *Review {
+func newReviewController(m *repository.MongoDB) *Review {
 	return &Review{
 		Repository: m,
 	}

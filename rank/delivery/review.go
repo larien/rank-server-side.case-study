@@ -1,7 +1,6 @@
 package delivery
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
@@ -12,42 +11,40 @@ import (
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
 )
 
-// ReviewHandler contains injected interface from Controller layer.
-type ReviewHandler struct {
+// Review contains injected interface from Controller layer.
+type Review struct {
 	Controller controller.ReviewController
 }
 
-// NewReviewHandler prepares endpoints for Review entity.
-func NewReviewHandler(version *gin.RouterGroup, c controller.ReviewController) {
-	review := &ReviewHandler{
+// SetReviewEndpoints sets endpoints for Review entity.
+func SetReviewEndpoints(version *gin.RouterGroup, c controller.ReviewController) {
+	review := &Review{
 		Controller: c,
 	}
 
 	endpoints := version.Group("/review")
 	{
 		endpoints.GET("", review.findAll)
-		endpoints.POST("", review.post)
 		endpoints.GET("/:id", review.getByID)
-		endpoints.DELETE("/:id", review.deleteByID)
+		endpoints.POST("", review.post)
 		endpoints.PATCH("", review.patch)
+		endpoints.DELETE("/:id", review.deleteByID)
 	}
 }
 
-// findAll is the handler for GET /review endpoint.
-func (r *ReviewHandler) findAll(c *gin.Context) {
-	reviews, _ := r.Controller.FindAll()
-	// TODO
-	// reviews, err := r.Controller.FindAll()
-	// if err != nil {
-	// 	c.JSON(
-	// 		http.StatusInternalServerError,
-	// 		gin.H{
-	// 			"status":  http.StatusInternalServerError,
-	// 			"message": "Failed to get reviews",
-	// 			"error":   err,
-	// 		})
-	// 	return
-	// }
+// findAll handles GET /review requests and returns all Reviews from database.
+func (r *Review) findAll(c *gin.Context) {
+	reviews, err := r.Controller.FindAll()
+	if err != nil {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "Failed to get Reviews",
+				"error":   err,
+			})
+		return
+	}
 
 	c.JSON(
 		http.StatusOK,
@@ -57,22 +54,20 @@ func (r *ReviewHandler) findAll(c *gin.Context) {
 		})
 }
 
-// post is the handler for POST /review endpoint.
-func (r *ReviewHandler) post(c *gin.Context) {
+// post handles POST /review requests on creating a new Review.
+func (r *Review) post(c *gin.Context) {
 	var review entity.Review
 
-	c.BindJSON(&review)
-	// TODO
-	// err := c.BindJSON(&review)
-	// if err != nil {
-	// 	c.JSON(
-	// 		http.StatusInternalServerError,
-	// 		gin.H{
-	// 			"status":  http.StatusInternalServerError,
-	// 			"message": "Failed to parse json", "error": err,
-	// 		})
-	// 	return
-	// }
+	if err := c.BindJSON(&review); err != nil {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "Failed to parse json",
+				"error":   err,
+			})
+		return
+	}
 
 	id, _ := r.Controller.Store(&review)
 
@@ -85,8 +80,8 @@ func (r *ReviewHandler) post(c *gin.Context) {
 		})
 }
 
-// getByID is the handler for GET /review/:id endpoint and returns desired review.
-func (r *ReviewHandler) getByID(c *gin.Context) {
+// getByID handles GET /review/:id requests and returns desired Review by its ID.
+func (r *Review) getByID(c *gin.Context) {
 	id := c.Param("id")
 	if !util.IsValidID(id) {
 		c.JSON(
@@ -120,8 +115,8 @@ func (r *ReviewHandler) getByID(c *gin.Context) {
 		})
 }
 
-// deleteByID is the handler for DELETE /review/:id endpoint and deletes desired review.
-func (r *ReviewHandler) deleteByID(c *gin.Context) {
+// deleteByID handles DELETE /review/:id requests and deletes desired Review by its ID.
+func (r *Review) deleteByID(c *gin.Context) {
 	id := c.Param("id")
 	if !util.IsValidID(id) {
 		c.JSON(
@@ -153,26 +148,31 @@ func (r *ReviewHandler) deleteByID(c *gin.Context) {
 		})
 }
 
-// patch is the handler for PATCH /review endpoint.
-func (r *ReviewHandler) patch(c *gin.Context) {
+// patch handles PATCH /review endpoint and updates an existing Review.
+func (r *Review) patch(c *gin.Context) {
 	var review entity.Review
 
-	c.BindJSON(&review)
-	// TODO
-	// err := c.BindJSON(&review)
-	// if err != nil {
-	// 	c.JSON(
-	// 		http.StatusInternalServerError,
-	// 		gin.H{
-	// 			"status":  http.StatusInternalServerError,
-	// 			"message": "Failed to parse json", "error": err,
-	// 		})
-	// 	return
-	// }
+	if err := c.BindJSON(&review); err != nil {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "Failed to parse json",
+				"error":   err,
+			})
+		return
+	}
 
-	fmt.Printf("Review recebido: %+v", review)
-
-	r.Controller.Update(&review)
+	if err := r.Controller.Update(&review); err != nil {
+		c.JSON(
+			http.StatusInternalServerError,
+			gin.H{
+				"status":  http.StatusInternalServerError,
+				"message": "Failed to update Review",
+				"error":   err,
+			})
+		return
+	}
 
 	c.JSON(
 		http.StatusOK,
