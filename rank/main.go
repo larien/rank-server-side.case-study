@@ -25,15 +25,21 @@ func Rank() {
 		log.Fatal(err.Error())
 	}
 	defer session.Close()
+	log.Printf("Session with MongoDB host started")
 
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
+	log.Printf("Pool with MongoDB session set")
 
 	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+	log.Printf("Repository layer created")
 
 	controllers := controller.New(repo)
+	log.Printf("Controller layer created")
 
 	router := routing.Router(controllers)
+	log.Printf("Routing endpoints set")
 
 	router.Run(port)
+	log.Printf("Running router on port %s", port)
 }
