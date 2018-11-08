@@ -13,10 +13,10 @@ type Review struct {
 
 // ReviewController contains methods that must be implemented by the injected layer.
 type ReviewController interface {
-	FindAll() ([]*entity.Review, error)
-	Store(*entity.Review) (util.Identifier, error)
-	GetByID(util.Identifier) (*entity.Review, error)
 	DeleteByID(util.Identifier) error
+	FindAll() ([]*entity.Review, error)
+	GetByID(util.Identifier) (*entity.Review, error)
+	Store(*entity.Review) (util.Identifier, error)
 	Update(*entity.Review) error
 }
 
@@ -27,27 +27,27 @@ func newReviewController(m *repository.MongoConn) *Review {
 	}
 }
 
-// FindAll returns all reviews from database.
-func (r *Review) FindAll() ([]*entity.Review, error) {
-	return r.Repository.FindAll()
-}
-
-// Store inserts a new Review in the database.
-func (r *Review) Store(review *entity.Review) (util.Identifier, error) {
-	return r.Repository.Store(review)
-}
-
-// GetByID inserts a new Review in the database.
-func (r *Review) GetByID(id util.Identifier) (*entity.Review, error) {
-	return r.Repository.GetByID(id)
-}
-
-// DeleteByID deletes a Review from the database by its ID.
+// DeleteByID requests the Repository layer for a Review to be deleted from the database by its ID.
 func (r *Review) DeleteByID(id util.Identifier) error {
 	return r.Repository.DeleteByID(id)
 }
 
-// Update updates an existing Review in the database.
+// FindAll requests the Repository layer to return all Reviews from database.
+func (r *Review) FindAll() ([]*entity.Review, error) {
+	return r.Repository.FindAll()
+}
+
+// GetByID requests the Repository layer for a certain Review by its ID.
+func (r *Review) GetByID(id util.Identifier) (*entity.Review, error) {
+	return r.Repository.GetByID(id)
+}
+
+// Store requests the Repository layer for the insertion of a new Review in the database.
+func (r *Review) Store(review *entity.Review) (util.Identifier, error) {
+	return r.Repository.Store(review)
+}
+
+// Update requests the Repository layer for a Review to be updated in the database.
 func (r *Review) Update(review *entity.Review) error {
 	return r.Repository.Update(review)
 }

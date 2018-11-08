@@ -166,7 +166,7 @@ func TestUpdate(t *testing.T) {
 		assert.Equal(t, "Title 1", review.Title)
 
 		review.Title = "Different title"
-		err := controller.UpdateByID(review)
+		err := controller.Update(review)
 		assert.Nil(t, err)
 
 		updatedReview, errGetByID2 := controller.GetByID(id)
