@@ -12,6 +12,7 @@ type Review interface {
 	Store(*entity.Review) (util.Identifier, error)
 	GetByID(util.Identifier) (*entity.Review, error)
 	DeleteByID(util.Identifier) error
+	UpdateByID(*entity.Review) error
 }
 
 // FindAll returns all Reviews from the database sorted by ID.
@@ -56,8 +57,8 @@ func (m *MongoConn) DeleteByID(id util.Identifier) error {
 	return m.pool.Session(nil).DB(m.db).C(config.REVIEW_COLLECTION).RemoveId(id)
 }
 
-// Update updates a new Review in the database.
-func (m *MongoConn) Update(review *entity.Review) error {
+// UpdateByID updates a new Review in the database.
+func (m *MongoConn) UpdateByID(review *entity.Review) error {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
