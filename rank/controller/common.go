@@ -10,7 +10,7 @@ type Controllers struct {
 }
 
 // New creates new Controllers for each Entity.
-func New(repo *repository.MongoConn) *Controllers {
+func New(repo *repository.MongoDB) *Controllers {
 	return &Controllers{
 		Review: newReviewController(repo),
 	}

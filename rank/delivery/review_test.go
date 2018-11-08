@@ -30,7 +30,7 @@ func TestEndpoint_Review(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+	repo := repository.New(pool, config.MONGODB_DATABASE)
 
 	controllers := repository.Review(repo)
 
@@ -39,7 +39,7 @@ func TestEndpoint_Review(t *testing.T) {
 	v1 := router.Group("/api/v1")
 
 	t.Run("should create new Review handler", func(t *testing.T) {
-		NewReviewHandler(v1, controllers)
+		SetReviewEndpoints(v1, controllers)
 	})
 
 	t.Run("should set Review GET endpoint", func(t *testing.T) {
@@ -87,15 +87,19 @@ func TestEndpoint_Review(t *testing.T) {
 
 	// TODO
 	// t.Run("shouldn't be able to parse json'", func(t *testing.T) {
-	// 	w := httptest.NewRecorder()
+	// 	var jsonStr = []byte("{lalala}")
 
-	// 	form := url.Values{}
-	// 	form.Add("username", "username")
-	// 	req := httptest.NewRequest("POST", "/api/v1/review", strings.NewReader(form.Encode()))
-	// 	req.Form = form
-	// 	router.ServeHTTP(w, req)
+	// 	req, _ := http.NewRequest("POST", "/api/v1/review", bytes.NewBuffer(jsonStr))
+	// 	req.Header.Set("Content-Type", "application/json")
 
-	// 	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	// 	client := &http.Client{}
+	// 	resp, err := client.Do(req)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	defer resp.Body.Close()
+
+	// 	assert.Equal(t, http.StatusInternalServerError, resp.Status)
 	// })
 
 	t.Run("should have created resource", func(t *testing.T) {

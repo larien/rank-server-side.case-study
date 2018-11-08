@@ -19,7 +19,7 @@ func Router(controllers *controller.Controllers) *gin.Engine {
 func endpoints(router *gin.Engine, controllers *controller.Controllers) {
 	v1 := router.Group("/api/v1")
 	{
-		delivery.NewReviewHandler(v1, controllers.Review)
+		delivery.SetReviewEndpoints(v1, controllers.Review)
 	}
 }
 
