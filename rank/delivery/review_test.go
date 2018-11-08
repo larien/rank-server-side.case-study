@@ -62,6 +62,18 @@ func TestEndpoint_Review(t *testing.T) {
 	// })
 
 	// TODO
+	// t.Run("should delete Review by ID endpoint", func(t *testing.T) {
+	// 	id := util.NewID()
+
+	// 	assert.NotNil(t, resp)
+	// 	assert.Equal(t, id.String(), resp.review.ID.String())
+
+	// 	assert.True(t, util.IsValidID(review.ID.String()))
+	// 	assert.Equal(t, id, review.ID)
+	// 	assert.Equal(t, http.StatusOK, w.Code)
+	// })
+
+	// TODO
 	// t.Run("shouldn't be able to parse json'", func(t *testing.T) {
 	// 	w := httptest.NewRecorder()
 
