@@ -16,7 +16,6 @@ Server-side code for Rank, a game review webapp. Project assigned to Lauren Ferr
 - Router: [Gin](https://github.com/gin-gonic/gin)
 - Testing: [Testify](https://github.com/stretchr/testify)
 
-
 ## Domain Driven Design
 
 [Available here](https://docs.google.com/presentation/d/1nBIUcWTXXqndFfDXDOfrQGKHIihbLQWOiP0QBTopZkA/edit?usp=sharing)
