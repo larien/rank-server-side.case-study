@@ -21,7 +21,7 @@ func TestNew(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+	repo := repository.New(pool, config.MONGODB_DATABASE)
 
 	t.Run("should have created Review controller", func(t *testing.T) {
 

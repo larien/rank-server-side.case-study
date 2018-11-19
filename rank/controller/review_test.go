@@ -23,7 +23,7 @@ func TestFindAll(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+	repo := repository.New(pool, config.MONGODB_DATABASE)
 
 	controller := newReviewController(repo)
 
@@ -54,7 +54,7 @@ func TestStore(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+	repo := repository.New(pool, config.MONGODB_DATABASE)
 
 	controller := newReviewController(repo)
 
@@ -87,7 +87,7 @@ func TestGetByID(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+	repo := repository.New(pool, config.MONGODB_DATABASE)
 
 	controller := newReviewController(repo)
 
@@ -116,7 +116,7 @@ func TestDeleteByID(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+	repo := repository.New(pool, config.MONGODB_DATABASE)
 
 	controller := newReviewController(repo)
 
@@ -146,7 +146,7 @@ func TestUpdate(t *testing.T) {
 	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
 	defer pool.Close()
 
-	repo := repository.NewMongoConnection(pool, config.MONGODB_DATABASE)
+	repo := repository.New(pool, config.MONGODB_DATABASE)
 
 	controller := newReviewController(repo)
 
