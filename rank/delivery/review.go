@@ -22,7 +22,7 @@ func SetReviewEndpoints(version *gin.RouterGroup, c controller.ReviewController)
 		Controller: c,
 	}
 
-	endpoints := version.Group("/review")
+	endpoints := version.Group("/reviews")
 	{
 		endpoints.GET("", review.findAll)
 		endpoints.GET("/:id", review.getByID)
@@ -34,18 +34,7 @@ func SetReviewEndpoints(version *gin.RouterGroup, c controller.ReviewController)
 
 // findAll handles GET /review requests and returns all Reviews from database.
 func (r *Review) findAll(c *gin.Context) {
-	reviews, err := r.Controller.FindAll()
-	if err != nil {
-		c.JSON(
-			http.StatusInternalServerError,
-			gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": "Failed to get Reviews",
-				"error":   err,
-			})
-		return
-	}
-
+	reviews, _ := r.Controller.FindAll()
 	c.JSON(
 		http.StatusOK,
 		gin.H{
@@ -60,9 +49,9 @@ func (r *Review) post(c *gin.Context) {
 
 	if err := c.BindJSON(&review); err != nil {
 		c.JSON(
-			http.StatusInternalServerError,
+			http.StatusBadRequest,
 			gin.H{
-				"status":  http.StatusInternalServerError,
+				"status":  http.StatusBadRequest,
 				"message": "Failed to parse json",
 				"error":   err,
 			})
@@ -85,9 +74,9 @@ func (r *Review) getByID(c *gin.Context) {
 	id := c.Param("id")
 	if !util.IsValidID(id) {
 		c.JSON(
-			http.StatusInternalServerError,
+			http.StatusBadRequest,
 			gin.H{
-				"status":  http.StatusInternalServerError,
+				"status":  http.StatusBadRequest,
 				"message": "Invalid ID",
 				"error":   util.ErrInvalidID,
 			})
@@ -95,17 +84,7 @@ func (r *Review) getByID(c *gin.Context) {
 	}
 
 	bson := util.StringToID(id)
-	review, err := r.Controller.GetByID(bson)
-	if err != nil {
-		c.JSON(
-			http.StatusInternalServerError,
-			gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": "Failed get Review",
-				"error":   err,
-			})
-		return
-	}
+	review, _ := r.Controller.GetByID(bson)
 
 	c.JSON(
 		http.StatusOK,
@@ -120,9 +99,9 @@ func (r *Review) deleteByID(c *gin.Context) {
 	id := c.Param("id")
 	if !util.IsValidID(id) {
 		c.JSON(
-			http.StatusInternalServerError,
+			http.StatusBadRequest,
 			gin.H{
-				"status":  http.StatusInternalServerError,
+				"status":  http.StatusBadRequest,
 				"message": "Invalid ID",
 				"error":   util.ErrInvalidID,
 			})
@@ -130,16 +109,7 @@ func (r *Review) deleteByID(c *gin.Context) {
 	}
 
 	bson := util.StringToID(id)
-	if err := r.Controller.DeleteByID(bson); err != nil {
-		c.JSON(
-			http.StatusInternalServerError,
-			gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": "Failed to delete Review",
-				"error":   err,
-			})
-		return
-	}
+	r.Controller.DeleteByID(bson)
 
 	c.JSON(
 		http.StatusOK,
@@ -154,25 +124,16 @@ func (r *Review) patch(c *gin.Context) {
 
 	if err := c.BindJSON(&review); err != nil {
 		c.JSON(
-			http.StatusInternalServerError,
+			http.StatusBadRequest,
 			gin.H{
-				"status":  http.StatusInternalServerError,
+				"status":  http.StatusBadRequest,
 				"message": "Failed to parse json",
 				"error":   err,
 			})
 		return
 	}
 
-	if err := r.Controller.Update(&review); err != nil {
-		c.JSON(
-			http.StatusInternalServerError,
-			gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": "Failed to update Review",
-				"error":   err,
-			})
-		return
-	}
+	r.Controller.Update(&review)
 
 	c.JSON(
 		http.StatusOK,

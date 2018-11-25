@@ -44,63 +44,10 @@ func TestEndpoint_Review(t *testing.T) {
 
 	t.Run("should set Review GET endpoint", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/review", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/reviews", nil)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
 	})
-
-	// TODO
-	// t.Run("should set Review GET by ID endpoint", func(t *testing.T) {
-	// 	id := util.NewID()
-
-	// 	assert.NotNil(t, resp)
-	// 	assert.Equal(t, id.String(), resp.review.ID.String())
-
-	// 	assert.True(t, util.IsValidID(review.ID.String()))
-	// 	assert.Equal(t, id, review.ID)
-	// 	assert.Equal(t, http.StatusOK, w.Code)
-	// })
-
-	// TODO
-	// t.Run("should delete Review by ID endpoint", func(t *testing.T) {
-	// 	id := util.NewID()
-
-	// 	assert.NotNil(t, resp)
-	// 	assert.Equal(t, id.String(), resp.review.ID.String())
-
-	// 	assert.True(t, util.IsValidID(review.ID.String()))
-	// 	assert.Equal(t, id, review.ID)
-	// 	assert.Equal(t, http.StatusOK, w.Code)
-	// })
-
-	// TODO
-	// t.Run("should update Review", func(t *testing.T) {
-	// 	id := util.NewID()
-
-	// 	assert.NotNil(t, resp)
-	// 	assert.Equal(t, id.String(), resp.review.ID.String())
-
-	// 	assert.True(t, util.IsValidID(review.ID.String()))
-	// 	assert.Equal(t, id, review.ID)
-	// 	assert.Equal(t, http.StatusOK, w.Code)
-	// })
-
-	// TODO
-	// t.Run("shouldn't be able to parse json'", func(t *testing.T) {
-	// 	var jsonStr = []byte("{lalala}")
-
-	// 	req, _ := http.NewRequest("POST", "/api/v1/review", bytes.NewBuffer(jsonStr))
-	// 	req.Header.Set("Content-Type", "application/json")
-
-	// 	client := &http.Client{}
-	// 	resp, err := client.Do(req)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	defer resp.Body.Close()
-
-	// 	assert.Equal(t, http.StatusInternalServerError, resp.Status)
-	// })
 
 	t.Run("should have created resource", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -108,7 +55,7 @@ func TestEndpoint_Review(t *testing.T) {
 		payload := fmt.Sprintf(`{
 			"title": "Title 1"
 		  }`)
-		req, err := http.NewRequest(http.MethodPost, "/api/v1/review", strings.NewReader(payload))
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
 		router.ServeHTTP(w, req)
 
 		var review *entity.Review
@@ -117,4 +64,126 @@ func TestEndpoint_Review(t *testing.T) {
 		assert.True(t, util.IsValidID(review.ID.String()))
 		assert.Equal(t, http.StatusCreated, w.Code)
 	})
+
+	t.Run("shouldnt have created resource because of bad syntax", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"title":
+		  }`)
+
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("should get Review by ID", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{"title": "Title 1"}`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+
+		var review *entity.Review
+		json.NewDecoder(w.Body).Decode(&review)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(review.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+		w = httptest.NewRecorder()
+		req, _ = http.NewRequest(http.MethodGet, "/api/v1/reviews/"+review.ID.String(), nil)
+		router.ServeHTTP(w, req)
+
+		var gottenReview *entity.Review
+		json.NewDecoder(w.Body).Decode(&gottenReview)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("shouldnt get Review by ID because of bad syntax", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/reviews/"+"adifhsghkfgiy", nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("should delete a Review by ID", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"title": "Title 1"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+
+		var review *entity.Review
+		json.NewDecoder(w.Body).Decode(&review)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(review.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+		fmt.Print(review)
+
+		w = httptest.NewRecorder()
+		req, _ = http.NewRequest(http.MethodDelete, "/api/v1/reviews/"+review.ID.String(), nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("shouldnt delete a Review by ID because of bad syntax", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/reviews/dfadfafgr", nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("should update a Review", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"title": "Title 1"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+		var review *entity.Review
+		json.NewDecoder(w.Body).Decode(&review)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(review.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"id": "` + review.ID.String() + `",
+			"title": "New Title"
+		  }`)
+		req, err = http.NewRequest(http.MethodPatch, "/api/v1/reviews", strings.NewReader(newPayload))
+		router.ServeHTTP(w, req)
+
+		var response *entity.Review
+		json.NewDecoder(w.Body).Decode(&response)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("shouldnt update a Review because of wrong syntax", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"title": "Title 1"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+		var review *entity.Review
+		json.NewDecoder(w.Body).Decode(&review)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(review.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"id": "` + review.ID.String() + `",
+			"title": 
+		  }`)
+		req, err = http.NewRequest(http.MethodPatch, "/api/v1/reviews", strings.NewReader(newPayload))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
 }
