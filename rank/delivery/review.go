@@ -44,15 +44,16 @@ func (r *Review) findAll(c *gin.Context) {
 
 // post handles POST /review requests on creating a new Review.
 func (r *Review) post(c *gin.Context) {
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	var review entity.Review
 
 	if err := c.BindJSON(&review); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
-			err,
-		)
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Failed to parse json",
+				"error":   err,
+			})
 		return
 	}
 
@@ -60,8 +61,11 @@ func (r *Review) post(c *gin.Context) {
 
 	c.JSON(
 		http.StatusCreated,
-		id,
-	)
+		gin.H{
+			"status":  http.StatusCreated,
+			"message": "Review created successfully!",
+			"id":      id,
+		})
 }
 
 // getByID handles GET /review/:id requests and returns desired Review by its ID.
@@ -70,8 +74,11 @@ func (r *Review) getByID(c *gin.Context) {
 	if !util.IsValidID(id) {
 		c.JSON(
 			http.StatusBadRequest,
-			util.ErrInvalidID,
-		)
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Invalid ID",
+				"error":   util.ErrInvalidID,
+			})
 		return
 	}
 
@@ -80,19 +87,23 @@ func (r *Review) getByID(c *gin.Context) {
 
 	c.JSON(
 		http.StatusOK,
-		review,
-	)
+		gin.H{
+			"status": http.StatusOK,
+			"review": review,
+		})
 }
 
 // deleteByID handles DELETE /review/:id requests and deletes desired Review by its ID.
 func (r *Review) deleteByID(c *gin.Context) {
-
 	id := c.Param("id")
 	if !util.IsValidID(id) {
 		c.JSON(
 			http.StatusBadRequest,
-			util.ErrInvalidID,
-		)
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Invalid ID",
+				"error":   util.ErrInvalidID,
+			})
 		return
 	}
 
@@ -101,8 +112,9 @@ func (r *Review) deleteByID(c *gin.Context) {
 
 	c.JSON(
 		http.StatusOK,
-		bson,
-	)
+		gin.H{
+			"status": http.StatusOK,
+		})
 }
 
 // patch handles PATCH /review endpoint and updates an existing Review.
@@ -112,8 +124,11 @@ func (r *Review) patch(c *gin.Context) {
 	if err := c.BindJSON(&review); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
-			err,
-		)
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Failed to parse json",
+				"error":   err,
+			})
 		return
 	}
 
@@ -121,6 +136,8 @@ func (r *Review) patch(c *gin.Context) {
 
 	c.JSON(
 		http.StatusOK,
-		review,
-	)
+		gin.H{
+			"status":  http.StatusOK,
+			"message": "Review updated successfully!",
+		})
 }
