@@ -14,7 +14,7 @@ type Review struct {
 	AverageRating   int             `bson:"average_rating" json:"average_rating"`
 	PublicationDate time.Time       `bson:"publication_date" json:"publication_date"`
 	UpdatedAt       time.Time       `bson:"updated_at" json:"updated_at"`
-	ReadingTime     int             `bson:"reading_time" json:"reading_time"`
+	ReadingTime     string          `bson:"reading_time" json:"reading_time"`
 	TextReview      string          `bson:"text_review" json:"text_review"`
 	CoverImage      string          `bson:"cover_image" json:"cover_image"`
 }
