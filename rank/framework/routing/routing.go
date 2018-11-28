@@ -1,6 +1,7 @@
 package routing
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/controller"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/delivery"
@@ -9,6 +10,8 @@ import (
 // Router sets up routing for Rank app.
 func Router(controllers *controller.Controllers) *gin.Engine {
 	router := setup()
+
+	router.Use(cors.Default())
 
 	endpoints(router, controllers)
 

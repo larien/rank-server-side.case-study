@@ -35,12 +35,11 @@ func SetReviewEndpoints(version *gin.RouterGroup, c controller.ReviewController)
 // findAll handles GET /review requests and returns all Reviews from database.
 func (r *Review) findAll(c *gin.Context) {
 	reviews, _ := r.Controller.FindAll()
+
 	c.JSON(
 		http.StatusOK,
-		gin.H{
-			"status":  http.StatusOK,
-			"reviews": reviews,
-		})
+		reviews,
+	)
 }
 
 // post handles POST /review requests on creating a new Review.
