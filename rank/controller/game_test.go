@@ -107,3 +107,35 @@ func TestGetByIDGame(t *testing.T) {
 		assert.Nil(t, err)
 	})
 }
+
+func TestDeleteByIDGame(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	repo := repository.New(pool, config.MONGODB_DATABASE)
+
+	controller := newGameController(repo)
+
+	t.Run("should delete Game from inserted ID", func(t *testing.T) {
+		name := "Game Name"
+
+		g1 := &entity.Game{
+			Name: name,
+		}
+
+		id, _ := controller.StoreGame(g1) // TODO
+
+		err := controller.DeleteGameByID(id)
+		assert.Nil(t, err)
+
+		game, errGetByID := controller.GetGameByID(id)
+		assert.Nil(t, game)
+		assert.Nil(t, errGetByID)
+	})
+}

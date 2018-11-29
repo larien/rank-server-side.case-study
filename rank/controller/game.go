@@ -13,7 +13,7 @@ type Game struct {
 
 // GameController contains methods that must be implemented by the injected layer.
 type GameController interface {
-	// DeleteGameByID(util.Identifier) error
+	DeleteGameByID(util.Identifier) error
 	FindAllGames() ([]*entity.Game, error)
 	GetGameByID(util.Identifier) (*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
@@ -27,17 +27,22 @@ func newGameController(m *repository.MongoDB) *Game {
 	}
 }
 
-// FindAllGames requests the Repository layer to return all Games from database.
-func (r *Game) FindAllGames() ([]*entity.Game, error) {
-	return r.Repository.FindAllGames()
+// DeleteGameByID requests the Repository layer for a Game to be deleted from the database by its ID.
+func (g *Game) DeleteGameByID(id util.Identifier) error {
+	return g.Repository.DeleteGameByID(id)
 }
 
-// StoreGame requests the Repository layer for the insertion of a new Game in the database.
-func (r *Game) StoreGame(review *entity.Game) (util.Identifier, error) {
-	return r.Repository.StoreGame(review)
+// FindAllGames requests the Repository layer to return all Games from database.
+func (g *Game) FindAllGames() ([]*entity.Game, error) {
+	return g.Repository.FindAllGames()
 }
 
 // GetGameByID requests the Repository layer for a certain Game by its ID.
-func (r *Game) GetGameByID(id util.Identifier) (*entity.Game, error) {
-	return r.Repository.GetGameByID(id)
+func (g *Game) GetGameByID(id util.Identifier) (*entity.Game, error) {
+	return g.Repository.GetGameByID(id)
+}
+
+// StoreGame requests the Repository layer for the insertion of a new Game in the database.
+func (g *Game) StoreGame(review *entity.Game) (util.Identifier, error) {
+	return g.Repository.StoreGame(review)
 }

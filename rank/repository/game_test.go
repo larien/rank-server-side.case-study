@@ -81,3 +81,39 @@ func TestFindGameByID(t *testing.T) {
 		assert.Equal(t, true, util.IsValidID(game.ID.String()))
 	})
 }
+
+func TestDeleteGameByID(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should delete certain Game by stored ID", func(t *testing.T) {
+
+		name := "Game Name"
+
+		g1 := &entity.Game{
+			Name: name,
+		}
+
+		// TODO
+		id, _ := m.StoreGame(g1)
+
+		game, errGetByID := m.GetGameByID(id)
+		assert.Equal(t, id, game.ID)
+		assert.Nil(t, errGetByID)
+
+		err := m.DeleteGameByID(id)
+		assert.Nil(t, err)
+
+		game, errGetByID2 := m.GetGameByID(id)
+		assert.Nil(t, game)
+		assert.Nil(t, errGetByID2)
+	})
+}

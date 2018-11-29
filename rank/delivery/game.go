@@ -26,7 +26,7 @@ func SetGameEndpoints(version *gin.RouterGroup, c controller.GameController) {
 		endpoints.GET("/:id", game.getByID)
 		endpoints.POST("", game.post)
 		// endpoints.PATCH("", game.patch)
-		// endpoints.DELETE("/:id", game.deleteByID)
+		endpoints.DELETE("/:id", game.deleteByID)
 	}
 }
 
@@ -88,5 +88,29 @@ func (g *Game) getByID(c *gin.Context) {
 		gin.H{
 			"status": http.StatusOK,
 			"game":   game,
+		})
+}
+
+// deleteByID handles DELETE /game/:id requests and deletes desired Game by its ID.
+func (g *Game) deleteByID(c *gin.Context) {
+	id := c.Param("id")
+	if !util.IsValidID(id) {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Invalid ID",
+				"error":   util.ErrInvalidID,
+			})
+		return
+	}
+
+	bson := util.StringToID(id)
+	g.Controller.DeleteGameByID(bson)
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
 		})
 }
