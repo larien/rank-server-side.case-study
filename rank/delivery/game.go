@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/controller"
+	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
 )
 
 // Game contains injected interface from Controller layer.
@@ -22,7 +23,7 @@ func SetGameEndpoints(version *gin.RouterGroup, c controller.GameController) {
 	{
 		endpoints.GET("", game.findAll)
 		// endpoints.GET("/:id", game.getByID)
-		// endpoints.POST("", game.post)
+		endpoints.POST("", game.post)
 		// endpoints.PATCH("", game.patch)
 		// endpoints.DELETE("/:id", game.deleteByID)
 	}
@@ -36,4 +37,30 @@ func (g *Game) findAll(c *gin.Context) {
 		http.StatusOK,
 		games,
 	)
+}
+
+// post handles POST /games requests on creating a new Game.
+func (g *Game) post(c *gin.Context) {
+	var game entity.Game
+
+	if err := c.BindJSON(&game); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Failed to parse json",
+				"error":   err,
+			})
+		return
+	}
+
+	id, _ := g.Controller.StoreGame(&game)
+
+	c.JSON(
+		http.StatusCreated,
+		gin.H{
+			"status":  http.StatusCreated,
+			"message": "Review created successfully!",
+			"id":      id,
+		})
 }
