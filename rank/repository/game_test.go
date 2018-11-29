@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/framework/config"
+	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
 	mgo "gopkg.in/mgo.v2"
 )
 
@@ -45,5 +46,38 @@ func TestFindAllGames(t *testing.T) {
 		games, err := m.FindAllGames()
 		assert.NotNil(t, err)
 		assert.Nil(t, games)
+	})
+}
+
+func TestFindGameByID(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should find certain Game by stored ID", func(t *testing.T) {
+
+		name := "Game Name"
+
+		g1 := &entity.Game{
+			Name: name,
+		}
+
+		// TODO
+		id, _ := m.StoreGame(g1)
+
+		game, err := m.GetGameByID(id)
+		assert.Equal(t, name, game.Name)
+		assert.Nil(t, err)
+		assert.NotNil(t, id)
+		assert.Equal(t, id, game.ID)
+		assert.Equal(t, true, util.IsValidID(id.String()))
+		assert.Equal(t, true, util.IsValidID(game.ID.String()))
 	})
 }
