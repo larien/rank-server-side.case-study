@@ -15,7 +15,7 @@ type Game struct {
 type GameController interface {
 	// DeleteGameByID(util.Identifier) error
 	FindAllGames() ([]*entity.Game, error)
-	// GetGameByID(util.Identifier) (*entity.Game, error)
+	GetGameByID(util.Identifier) (*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
 	// UpdateGame(*entity.Game) error
 }
@@ -35,4 +35,9 @@ func (r *Game) FindAllGames() ([]*entity.Game, error) {
 // StoreGame requests the Repository layer for the insertion of a new Game in the database.
 func (r *Game) StoreGame(review *entity.Game) (util.Identifier, error) {
 	return r.Repository.StoreGame(review)
+}
+
+// GetGameByID requests the Repository layer for a certain Game by its ID.
+func (r *Game) GetGameByID(id util.Identifier) (*entity.Game, error) {
+	return r.Repository.GetGameByID(id)
 }
