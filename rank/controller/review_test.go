@@ -13,7 +13,7 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-func TestFindAll(t *testing.T) {
+func TestFindAllReviews(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -44,7 +44,7 @@ func TestFindAll(t *testing.T) {
 	})
 }
 
-func TestStore(t *testing.T) {
+func TestStoreReview(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -77,7 +77,7 @@ func TestStore(t *testing.T) {
 	})
 }
 
-func TestGetByID(t *testing.T) {
+func TestGetByIDReview(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -106,7 +106,7 @@ func TestGetByID(t *testing.T) {
 	})
 }
 
-func TestDeleteByID(t *testing.T) {
+func TestDeleteByIDReview(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -136,7 +136,7 @@ func TestDeleteByID(t *testing.T) {
 	})
 }
 
-func TestUpdate(t *testing.T) {
+func TestUpdateReview(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())

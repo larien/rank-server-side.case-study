@@ -32,7 +32,7 @@ func (r *Review) DeleteReviewByID(id util.Identifier) error {
 	return r.Repository.DeleteReviewByID(id)
 }
 
-// FindAll requests the Repository layer to return all Reviews from database.
+// FindAllReviews requests the Repository layer to return all Reviews from database.
 func (r *Review) FindAllReviews() ([]*entity.Review, error) {
 	return r.Repository.FindAllReviews()
 }
