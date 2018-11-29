@@ -8,13 +8,13 @@ import (
 
 // Game represents the game entity and its attributes.
 type Game struct {
-	ID              util.Identifier `bson:"_id,omitempty" json:"id"`
-	Name            string          `bson:"name" json:"name"`
-	Platforms       []string        `bson:"platforms" json:"platforms"`
-	Categories      []string        `bson:"categories" json:"categories"`
-	PublicationDate time.Time       `bson:"publication_date" json:"publication_date"` // Game's publication date
-	PublicatedAt    time.Time       `bson:"publicated_at" json:"publicated_at"`       // Game page's publication date
-	Rating          string          `bson:"rating" json:"rating"`
-	Score           int             `bson:"score" json:"score"`
-	Publisher       string          `bson:"publisher" json:"publisher"`
+	ID           util.Identifier `bson:"_id,omitempty" json:"id"`
+	Name         string          `bson:"name" json:"name"`
+	Platforms    []string        `bson:"platforms" json:"platforms"`
+	Categories   []string        `bson:"categories" json:"categories"`
+	ReleaseDate  time.Time       `bson:"release_date" json:"release_date"`   // Game's release date
+	PublicatedAt time.Time       `bson:"publicated_at" json:"publicated_at"` // Game page's publication date
+	Rating       string          `bson:"rating" json:"rating"`
+	Score        int             `bson:"score" json:"score"`
+	Publisher    string          `bson:"publisher" json:"publisher"`
 }
