@@ -133,4 +133,55 @@ func TestGameEndpoints(t *testing.T) {
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
+
+	t.Run("should update a Game", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"name": "Game name"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+		var game *entity.Game
+		json.NewDecoder(w.Body).Decode(&game)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(game.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"id": "` + game.ID.String() + `",
+			"name": "New Name"
+		  }`)
+		req, err = http.NewRequest(http.MethodPatch, "/api/v1/games", strings.NewReader(newPayload))
+		router.ServeHTTP(w, req)
+
+		var response *entity.Game
+		json.NewDecoder(w.Body).Decode(&response)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("shouldnt update a Game because of wrong syntax", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"name": "Game Name"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+		var game *entity.Game
+		json.NewDecoder(w.Body).Decode(&game)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(game.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"id": "` + game.ID.String() + `",
+			"name": 
+		  }`)
+		req, err = http.NewRequest(http.MethodPatch, "/api/v1/games", strings.NewReader(newPayload))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
 }

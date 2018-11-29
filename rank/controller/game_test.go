@@ -139,3 +139,45 @@ func TestDeleteByIDGame(t *testing.T) {
 		assert.Nil(t, errGetByID)
 	})
 }
+
+func TestUpdateGame(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	repo := repository.New(pool, config.MONGODB_DATABASE)
+
+	controller := newGameController(repo)
+
+	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
+
+	t.Run("should update Game title", func(t *testing.T) {
+
+		name := "Game Name"
+
+		g1 := &entity.Game{
+			Name: name,
+		}
+
+		id, _ := controller.StoreGame(g1) // TODO
+
+		game, errGetByID := controller.GetGameByID(id)
+		assert.Nil(t, errGetByID)
+		assert.Equal(t, name, game.Name)
+
+		differentName := "Game Name"
+
+		game.Name = differentName
+		err := controller.UpdateGame(game)
+		assert.Nil(t, err)
+
+		updatedGame, errGetByID2 := controller.GetGameByID(id)
+		assert.Nil(t, errGetByID2)
+		assert.Equal(t, differentName, updatedGame.Name)
+	})
+}

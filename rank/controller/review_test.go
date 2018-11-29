@@ -27,7 +27,6 @@ func TestFindAllReviews(t *testing.T) {
 
 	controller := newReviewController(repo)
 
-	// TODO - change to RemoveAll function from Repository layer
 	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
 
 	r1 := &entity.Review{
@@ -58,7 +57,6 @@ func TestStoreReview(t *testing.T) {
 
 	controller := newReviewController(repo)
 
-	// TODO - change to RemoveAll function from Repository layer
 	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
 
 	r1 := &entity.Review{
@@ -150,7 +148,6 @@ func TestUpdateReview(t *testing.T) {
 
 	controller := newReviewController(repo)
 
-	// TODO - change to RemoveAll function from Repository layer
 	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
 
 	t.Run("should update Review title", func(t *testing.T) {
