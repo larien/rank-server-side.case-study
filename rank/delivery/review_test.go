@@ -19,7 +19,7 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-func TestEndpoint_Review(t *testing.T) {
+func TestReviewEndpoints(t *testing.T) {
 
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
@@ -32,14 +32,14 @@ func TestEndpoint_Review(t *testing.T) {
 
 	repo := repository.New(pool, config.MONGODB_DATABASE)
 
-	controllers := repository.Review(repo)
+	controller := repository.Review(repo)
 
 	router := gin.Default()
 
 	v1 := router.Group("/api/v1")
 
 	t.Run("should create new Review handler", func(t *testing.T) {
-		SetReviewEndpoints(v1, controllers)
+		SetReviewEndpoints(v1, controller)
 	})
 
 	t.Run("should set Review GET endpoint", func(t *testing.T) {
@@ -120,7 +120,6 @@ func TestEndpoint_Review(t *testing.T) {
 		assert.Nil(t, err)
 		assert.True(t, util.IsValidID(review.ID.String()))
 		assert.Equal(t, http.StatusCreated, w.Code)
-		fmt.Print(review)
 
 		w = httptest.NewRecorder()
 		req, _ = http.NewRequest(http.MethodDelete, "/api/v1/reviews/"+review.ID.String(), nil)
