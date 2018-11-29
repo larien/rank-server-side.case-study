@@ -17,4 +17,5 @@ type Game struct {
 	Rating       string          `bson:"rating" json:"rating"`
 	Score        int             `bson:"score" json:"score"`
 	Publisher    string          `bson:"publisher" json:"publisher"`
+	CoverImage   string          `bson:"cover_image" json:"cover_image"`
 }
