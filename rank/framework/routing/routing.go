@@ -23,6 +23,7 @@ func endpoints(router *gin.Engine, controllers *controller.Controllers) {
 	v1 := router.Group("/api/v1")
 	{
 		delivery.SetReviewEndpoints(v1, controllers.Review)
+		delivery.SetGameEndpoints(v1, controllers.Game)
 	}
 }
 
