@@ -105,4 +105,32 @@ func TestGameEndpoints(t *testing.T) {
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
+
+	t.Run("should delete a Game by ID", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"name": "Game Name"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+
+		var game *entity.Game
+		json.NewDecoder(w.Body).Decode(&game)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(game.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		req, _ = http.NewRequest(http.MethodDelete, "/api/v1/games/"+game.ID.String(), nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("shouldnt delete a Game by ID because of bad syntax", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/games/dfadfafgr", nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
 }

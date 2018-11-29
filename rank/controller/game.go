@@ -13,7 +13,7 @@ type Game struct {
 
 // GameController contains methods that must be implemented by the injected layer.
 type GameController interface {
-	// DeleteGameByID(util.Identifier) error
+	DeleteGameByID(util.Identifier) error
 	FindAllGames() ([]*entity.Game, error)
 	GetGameByID(util.Identifier) (*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
