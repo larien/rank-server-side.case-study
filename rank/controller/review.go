@@ -13,11 +13,11 @@ type Review struct {
 
 // ReviewController contains methods that must be implemented by the injected layer.
 type ReviewController interface {
-	DeleteByID(util.Identifier) error
-	FindAll() ([]*entity.Review, error)
-	GetByID(util.Identifier) (*entity.Review, error)
-	Store(*entity.Review) (util.Identifier, error)
-	Update(*entity.Review) error
+	DeleteReviewByID(util.Identifier) error
+	FindAllReviews() ([]*entity.Review, error)
+	GetReviewByID(util.Identifier) (*entity.Review, error)
+	StoreReview(*entity.Review) (util.Identifier, error)
+	UpdateReview(*entity.Review) error
 }
 
 // newReviewController creates a new Review Controller.
@@ -27,27 +27,27 @@ func newReviewController(m *repository.MongoDB) *Review {
 	}
 }
 
-// DeleteByID requests the Repository layer for a Review to be deleted from the database by its ID.
-func (r *Review) DeleteByID(id util.Identifier) error {
-	return r.Repository.DeleteByID(id)
+// DeleteReviewByID requests the Repository layer for a Review to be deleted from the database by its ID.
+func (r *Review) DeleteReviewByID(id util.Identifier) error {
+	return r.Repository.DeleteReviewByID(id)
 }
 
 // FindAll requests the Repository layer to return all Reviews from database.
-func (r *Review) FindAll() ([]*entity.Review, error) {
-	return r.Repository.FindAll()
+func (r *Review) FindAllReviews() ([]*entity.Review, error) {
+	return r.Repository.FindAllReviews()
 }
 
-// GetByID requests the Repository layer for a certain Review by its ID.
-func (r *Review) GetByID(id util.Identifier) (*entity.Review, error) {
-	return r.Repository.GetByID(id)
+// GetReviewByID requests the Repository layer for a certain Review by its ID.
+func (r *Review) GetReviewByID(id util.Identifier) (*entity.Review, error) {
+	return r.Repository.GetReviewByID(id)
 }
 
-// Store requests the Repository layer for the insertion of a new Review in the database.
-func (r *Review) Store(review *entity.Review) (util.Identifier, error) {
-	return r.Repository.Store(review)
+// StoreReview requests the Repository layer for the insertion of a new Review in the database.
+func (r *Review) StoreReview(review *entity.Review) (util.Identifier, error) {
+	return r.Repository.StoreReview(review)
 }
 
-// Update requests the Repository layer for a Review to be updated in the database.
-func (r *Review) Update(review *entity.Review) error {
-	return r.Repository.Update(review)
+// UpdateReview requests the Repository layer for a Review to be updated in the database.
+func (r *Review) UpdateReview(review *entity.Review) error {
+	return r.Repository.UpdateReview(review)
 }

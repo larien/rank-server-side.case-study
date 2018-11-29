@@ -34,10 +34,10 @@ func TestFindAll(t *testing.T) {
 		Title: "Title 1",
 	}
 
-	controller.Store(r1)
+	controller.StoreReview(r1)
 
 	t.Run("should return inserted review with 'Title 1' as title", func(t *testing.T) {
-		reviews, err := controller.FindAll()
+		reviews, err := controller.FindAllReviews()
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(reviews))
 		assert.Equal(t, "Title 1", reviews[0].Title)
@@ -66,12 +66,12 @@ func TestStore(t *testing.T) {
 	}
 
 	t.Run("should return inserted ID", func(t *testing.T) {
-		id, _ := controller.Store(r1) // TODO
+		id, _ := controller.StoreReview(r1) // TODO
 		assert.Equal(t, true, util.IsValidID(id.String()))
 	})
 
 	t.Run("should have inserted new review", func(t *testing.T) {
-		reviews, errFindAll := controller.FindAll()
+		reviews, errFindAll := controller.FindAllReviews()
 		assert.Nil(t, errFindAll)
 		assert.Equal(t, 1, len(reviews))
 	})
@@ -96,10 +96,10 @@ func TestGetByID(t *testing.T) {
 			Title: "Title Test",
 		}
 
-		id, _ := controller.Store(r1) // TODO
+		id, _ := controller.StoreReview(r1) // TODO
 		assert.Equal(t, true, util.IsValidID(id.String()))
 
-		review, err := controller.GetByID(id)
+		review, err := controller.GetReviewByID(id)
 		assert.Equal(t, true, util.IsValidID(review.ID.String()))
 		assert.Equal(t, review.Title, "Title Test")
 		assert.Nil(t, err)
@@ -125,12 +125,12 @@ func TestDeleteByID(t *testing.T) {
 			Title: "Title Test",
 		}
 
-		id, _ := controller.Store(r1) // TODO
+		id, _ := controller.StoreReview(r1) // TODO
 
-		err := controller.DeleteByID(id)
+		err := controller.DeleteReviewByID(id)
 		assert.Nil(t, err)
 
-		review, errGetByID := controller.GetByID(id)
+		review, errGetByID := controller.GetReviewByID(id)
 		assert.Nil(t, review)
 		assert.Nil(t, errGetByID)
 	})
@@ -159,17 +159,17 @@ func TestUpdate(t *testing.T) {
 			Title: "Title 1",
 		}
 
-		id, _ := controller.Store(r1) // TODO
+		id, _ := controller.StoreReview(r1) // TODO
 
-		review, errGetByID := controller.GetByID(id)
+		review, errGetByID := controller.GetReviewByID(id)
 		assert.Nil(t, errGetByID)
 		assert.Equal(t, "Title 1", review.Title)
 
 		review.Title = "Different title"
-		err := controller.Update(review)
+		err := controller.UpdateReview(review)
 		assert.Nil(t, err)
 
-		updatedReview, errGetByID2 := controller.GetByID(id)
+		updatedReview, errGetByID2 := controller.GetReviewByID(id)
 		assert.Nil(t, errGetByID2)
 		assert.Equal(t, "Different title", updatedReview.Title)
 	})
