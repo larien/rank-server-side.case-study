@@ -25,7 +25,7 @@ func SetGameEndpoints(version *gin.RouterGroup, c controller.GameController) {
 		endpoints.GET("", game.findAll)
 		endpoints.GET("/:id", game.getByID)
 		endpoints.POST("", game.post)
-		// endpoints.PATCH("", game.patch)
+		endpoints.PATCH("", game.patch)
 		endpoints.DELETE("/:id", game.deleteByID)
 	}
 }
@@ -112,5 +112,30 @@ func (g *Game) deleteByID(c *gin.Context) {
 		http.StatusOK,
 		gin.H{
 			"status": http.StatusOK,
+		})
+}
+
+// patch handles PATCH /game endpoint and updates an existing Game.
+func (r *Game) patch(c *gin.Context) {
+	var game entity.Game
+
+	if err := c.BindJSON(&game); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Failed to parse json",
+				"error":   err,
+			})
+		return
+	}
+
+	r.Controller.UpdateGame(&game)
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status":  http.StatusOK,
+			"message": "Game updated successfully!",
 		})
 }
