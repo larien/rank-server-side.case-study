@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/controller"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
+	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
 )
 
 // Game contains injected interface from Controller layer.
@@ -22,7 +23,7 @@ func SetGameEndpoints(version *gin.RouterGroup, c controller.GameController) {
 	endpoints := version.Group("/games")
 	{
 		endpoints.GET("", game.findAll)
-		// endpoints.GET("/:id", game.getByID)
+		endpoints.GET("/:id", game.getByID)
 		endpoints.POST("", game.post)
 		// endpoints.PATCH("", game.patch)
 		// endpoints.DELETE("/:id", game.deleteByID)
@@ -60,7 +61,32 @@ func (g *Game) post(c *gin.Context) {
 		http.StatusCreated,
 		gin.H{
 			"status":  http.StatusCreated,
-			"message": "Review created successfully!",
+			"message": "Game created successfully!",
 			"id":      id,
+		})
+}
+
+// getByID handles GET /game/:id requests and returns desired Game by its ID.
+func (g *Game) getByID(c *gin.Context) {
+	id := c.Param("id")
+	if !util.IsValidID(id) {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Invalid ID",
+				"error":   util.ErrInvalidID,
+			})
+		return
+	}
+
+	bson := util.StringToID(id)
+	game, _ := g.Controller.GetGameByID(bson)
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+			"game":   game,
 		})
 }
