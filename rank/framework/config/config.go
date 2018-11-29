@@ -5,5 +5,6 @@ const (
 	MONGODB_DATABASE        = "rank"
 	MONGODB_CONNECTION_POOL = 50
 	REVIEW_COLLECTION       = "review"
+	GAME_COLLECTION         = "game"
 	API_PORT                = 8080
 )

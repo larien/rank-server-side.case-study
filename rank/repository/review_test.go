@@ -12,7 +12,7 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-func TestFindAll(t *testing.T) {
+func TestFindAllReviews(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -25,15 +25,14 @@ func TestFindAll(t *testing.T) {
 	m := New(pool, config.MONGODB_DATABASE)
 
 	t.Run("should have returned all reviews", func(t *testing.T) {
-		// TODO - change to RemoveAll function from Repository layer
 		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
 
 		r1 := &entity.Review{
 			Title: "Title 1",
 		}
 
-		m.Store(r1)
-		reviews, err := m.FindAll()
+		m.StoreReview(r1)
+		reviews, err := m.FindAllReviews()
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(reviews))
 		assert.Equal(t, "Title 1", reviews[0].Title)
@@ -41,13 +40,13 @@ func TestFindAll(t *testing.T) {
 
 	t.Run("should have returned error", func(t *testing.T) {
 		m = New(pool, "otherdatabase")
-		reviews, err := m.FindAll()
+		reviews, err := m.FindAllReviews()
 		assert.NotNil(t, err)
 		assert.Nil(t, reviews)
 	})
 }
 
-func TestStore(t *testing.T) {
+func TestStoreReview(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -68,9 +67,9 @@ func TestStore(t *testing.T) {
 		}
 
 		// TODO
-		id, _ := m.Store(r1)
+		id, _ := m.StoreReview(r1)
 
-		reviews, errFindAll := m.FindAll()
+		reviews, errFindAll := m.FindAllReviews()
 
 		assert.Equal(t, 1, len(reviews))
 		assert.Nil(t, err)
@@ -80,7 +79,7 @@ func TestStore(t *testing.T) {
 	})
 }
 
-func TestFindByID(t *testing.T) {
+func TestFindReviewByID(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -99,9 +98,9 @@ func TestFindByID(t *testing.T) {
 		}
 
 		// TODO
-		id, _ := m.Store(r1)
+		id, _ := m.StoreReview(r1)
 
-		review, err := m.GetByID(id)
+		review, err := m.GetReviewByID(id)
 		assert.Equal(t, "Title Test", review.Title)
 		assert.Nil(t, err)
 		assert.NotNil(t, id)
@@ -111,7 +110,7 @@ func TestFindByID(t *testing.T) {
 	})
 }
 
-func TestDeleteByID(t *testing.T) {
+func TestDeleteReviewByID(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -130,22 +129,22 @@ func TestDeleteByID(t *testing.T) {
 		}
 
 		// TODO
-		id, _ := m.Store(r1)
+		id, _ := m.StoreReview(r1)
 
-		review, errGetByID := m.GetByID(id)
+		review, errGetByID := m.GetReviewByID(id)
 		assert.Equal(t, id, review.ID)
 		assert.Nil(t, errGetByID)
 
-		err := m.DeleteByID(id)
+		err := m.DeleteReviewByID(id)
 		assert.Nil(t, err)
 
-		review, errGetByID2 := m.GetByID(id)
+		review, errGetByID2 := m.GetReviewByID(id)
 		assert.Nil(t, review)
 		assert.Nil(t, errGetByID2)
 	})
 }
 
-func TestUpdate(t *testing.T) {
+func TestUpdateReview(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -166,18 +165,18 @@ func TestUpdate(t *testing.T) {
 		}
 
 		// TODO
-		id, err := m.Store(r1)
+		id, err := m.StoreReview(r1)
 		assert.Nil(t, err)
 
-		review, errGetByID := m.GetByID(id)
+		review, errGetByID := m.GetReviewByID(id)
 		assert.Nil(t, errGetByID)
 		assert.Equal(t, "Title 1", review.Title)
 
 		review.Title = "Different title"
-		errUpdate := m.Update(review)
+		errUpdate := m.UpdateReview(review)
 		assert.Nil(t, errUpdate)
 
-		updatedReview, errGetByID2 := m.GetByID(id)
+		updatedReview, errGetByID2 := m.GetReviewByID(id)
 
 		assert.Nil(t, errGetByID2)
 		assert.Equal(t, "Different title", updatedReview.Title)

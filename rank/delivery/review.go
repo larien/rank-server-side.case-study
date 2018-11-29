@@ -34,7 +34,7 @@ func SetReviewEndpoints(version *gin.RouterGroup, c controller.ReviewController)
 
 // findAll handles GET /review requests and returns all Reviews from database.
 func (r *Review) findAll(c *gin.Context) {
-	reviews, _ := r.Controller.FindAll()
+	reviews, _ := r.Controller.FindAllReviews()
 
 	c.JSON(
 		http.StatusOK,
@@ -57,7 +57,7 @@ func (r *Review) post(c *gin.Context) {
 		return
 	}
 
-	id, _ := r.Controller.Store(&review)
+	id, _ := r.Controller.StoreReview(&review)
 
 	c.JSON(
 		http.StatusCreated,
@@ -83,7 +83,7 @@ func (r *Review) getByID(c *gin.Context) {
 	}
 
 	bson := util.StringToID(id)
-	review, _ := r.Controller.GetByID(bson)
+	review, _ := r.Controller.GetReviewByID(bson)
 
 	c.JSON(
 		http.StatusOK,
@@ -108,7 +108,7 @@ func (r *Review) deleteByID(c *gin.Context) {
 	}
 
 	bson := util.StringToID(id)
-	r.Controller.DeleteByID(bson)
+	r.Controller.DeleteReviewByID(bson)
 
 	c.JSON(
 		http.StatusOK,
@@ -132,7 +132,7 @@ func (r *Review) patch(c *gin.Context) {
 		return
 	}
 
-	r.Controller.Update(&review)
+	r.Controller.UpdateReview(&review)
 
 	c.JSON(
 		http.StatusOK,

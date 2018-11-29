@@ -8,20 +8,20 @@ import (
 
 // Review defines the methods must be implemented by injected layer.
 type Review interface {
-	DeleteByID(util.Identifier) error
-	FindAll() ([]*entity.Review, error)
-	GetByID(util.Identifier) (*entity.Review, error)
-	Store(*entity.Review) (util.Identifier, error)
-	Update(*entity.Review) error
+	DeleteReviewByID(util.Identifier) error
+	FindAllReviews() ([]*entity.Review, error)
+	GetReviewByID(util.Identifier) (*entity.Review, error)
+	StoreReview(*entity.Review) (util.Identifier, error)
+	UpdateReview(*entity.Review) error
 }
 
-// DeleteByID deletes a Review by its ID.
-func (m *MongoDB) DeleteByID(id util.Identifier) error {
+// DeleteReviewByID deletes a Review by its ID.
+func (m *MongoDB) DeleteReviewByID(id util.Identifier) error {
 	return m.pool.Session(nil).DB(m.db).C(config.REVIEW_COLLECTION).RemoveId(id)
 }
 
-// FindAll returns all Reviews from the database sorted by ID.
-func (m *MongoDB) FindAll() ([]*entity.Review, error) {
+// FindAllReviews returns all Reviews from the database sorted by ID.
+func (m *MongoDB) FindAllReviews() ([]*entity.Review, error) {
 	var reviews []*entity.Review
 
 	session := m.pool.Session(nil)
@@ -33,8 +33,8 @@ func (m *MongoDB) FindAll() ([]*entity.Review, error) {
 	return reviews, nil
 }
 
-// GetByID finds a Review by its ID.
-func (m *MongoDB) GetByID(id util.Identifier) (*entity.Review, error) {
+// GetReviewByID finds a Review by its ID.
+func (m *MongoDB) GetReviewByID(id util.Identifier) (*entity.Review, error) {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
@@ -45,8 +45,8 @@ func (m *MongoDB) GetByID(id util.Identifier) (*entity.Review, error) {
 	return review, nil
 }
 
-// Store inserts a new Review in the database.
-func (m *MongoDB) Store(review *entity.Review) (util.Identifier, error) {
+// StoreReview inserts a new Review in the database.
+func (m *MongoDB) StoreReview(review *entity.Review) (util.Identifier, error) {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
@@ -57,8 +57,8 @@ func (m *MongoDB) Store(review *entity.Review) (util.Identifier, error) {
 	return review.ID, nil
 }
 
-// Update updates a new Review in the database.
-func (m *MongoDB) Update(review *entity.Review) error {
+// UpdateReview updates an existing Review in the database.
+func (m *MongoDB) UpdateReview(review *entity.Review) error {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
