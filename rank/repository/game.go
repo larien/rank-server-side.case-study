@@ -12,7 +12,7 @@ type Game interface {
 	FindAllGames() ([]*entity.Game, error)
 	GetGameByID(util.Identifier) (*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
-	// UpdateGame(*entity.Game) error
+	UpdateGame(*entity.Game) error
 }
 
 // DeleteGameByID deletes a Game by its ID.
@@ -55,4 +55,13 @@ func (m *MongoDB) StoreGame(game *entity.Game) (util.Identifier, error) {
 	coll.Insert(game)
 
 	return game.ID, nil
+}
+
+// UpdateGame updates an existing Game in the database.
+func (m *MongoDB) UpdateGame(game *entity.Game) error {
+	session := m.pool.Session(nil)
+	coll := session.DB(m.db).C(config.GAME_COLLECTION)
+
+	_, err := coll.UpsertId(game.ID, game) // TODO - avoid null Games
+	return err
 }
