@@ -8,11 +8,16 @@ import (
 
 // Game defines the methods must be implemented by injected layer.
 type Game interface {
-	// DeleteGameByID(util.Identifier) error
+	DeleteGameByID(util.Identifier) error
 	FindAllGames() ([]*entity.Game, error)
 	GetGameByID(util.Identifier) (*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
 	// UpdateGame(*entity.Game) error
+}
+
+// DeleteGameByID deletes a Game by its ID.
+func (m *MongoDB) DeleteGameByID(id util.Identifier) error {
+	return m.pool.Session(nil).DB(m.db).C(config.GAME_COLLECTION).RemoveId(id)
 }
 
 // FindAllGames returns all Game from the database sorted by ID.
@@ -28,18 +33,6 @@ func (m *MongoDB) FindAllGames() ([]*entity.Game, error) {
 	return games, nil
 }
 
-// StoreGame inserts a new Game in the database.
-func (m *MongoDB) StoreGame(game *entity.Game) (util.Identifier, error) {
-	session := m.pool.Session(nil)
-	coll := session.DB(m.db).C(config.GAME_COLLECTION)
-
-	game.ID = util.NewID()
-
-	coll.Insert(game)
-
-	return game.ID, nil
-}
-
 // GetGameByID finds a Game by its ID.
 func (m *MongoDB) GetGameByID(id util.Identifier) (*entity.Game, error) {
 	session := m.pool.Session(nil)
@@ -50,4 +43,16 @@ func (m *MongoDB) GetGameByID(id util.Identifier) (*entity.Game, error) {
 	coll.FindId(id).One(&game)
 
 	return game, nil
+}
+
+// StoreGame inserts a new Game in the database.
+func (m *MongoDB) StoreGame(game *entity.Game) (util.Identifier, error) {
+	session := m.pool.Session(nil)
+	coll := session.DB(m.db).C(config.GAME_COLLECTION)
+
+	game.ID = util.NewID()
+
+	coll.Insert(game)
+
+	return game.ID, nil
 }
