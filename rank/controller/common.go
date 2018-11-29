@@ -7,11 +7,13 @@ import (
 // Controllers contains the Controllers for each Entity.
 type Controllers struct {
 	Review repository.Review
+	Game   repository.Game
 }
 
 // New creates new Controllers for each Entity.
 func New(repo *repository.MongoDB) *Controllers {
 	return &Controllers{
 		Review: newReviewController(repo),
+		Game:   newGameController(repo),
 	}
 }
