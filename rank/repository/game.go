@@ -10,7 +10,7 @@ import (
 type Game interface {
 	// DeleteGameByID(util.Identifier) error
 	FindAllGames() ([]*entity.Game, error)
-	// GetGameByID(util.Identifier) (*entity.Game, error)
+	GetGameByID(util.Identifier) (*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
 	// UpdateGame(*entity.Game) error
 }
@@ -38,4 +38,16 @@ func (m *MongoDB) StoreGame(game *entity.Game) (util.Identifier, error) {
 	coll.Insert(game)
 
 	return game.ID, nil
+}
+
+// GetGameByID finds a Game by its ID.
+func (m *MongoDB) GetGameByID(id util.Identifier) (*entity.Game, error) {
+	session := m.pool.Session(nil)
+	coll := session.DB(m.db).C(config.GAME_COLLECTION)
+
+	var game *entity.Game
+
+	coll.FindId(id).One(&game)
+
+	return game, nil
 }
