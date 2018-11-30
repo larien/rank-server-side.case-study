@@ -19,6 +19,7 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
+// TODO - develop modular endpoint tests
 func TestGameEndpoints(t *testing.T) {
 
 	session, err := mgo.Dial(config.MONGODB_HOST)
@@ -41,6 +42,8 @@ func TestGameEndpoints(t *testing.T) {
 	t.Run("should create new Game handler", func(t *testing.T) {
 		SetGameEndpoints(v1, controller)
 	})
+
+	// TODO - test GET All games endpoint
 
 	t.Run("should set Game GET endpoint", func(t *testing.T) {
 		w := httptest.NewRecorder()
@@ -224,5 +227,18 @@ func TestGameEndpoints(t *testing.T) {
 		req, err = http.NewRequest(http.MethodPatch, "/api/v1/games", strings.NewReader(newPayload))
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("shouldnt return any category", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/games/categories", nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		type categories []string
+		fmt.Println(w)
+		var c categories
+		json.NewDecoder(w.Body).Decode(&c)
+		assert.Empty(t, c)
 	})
 }
