@@ -90,7 +90,7 @@ func TestGameEndpoints(t *testing.T) {
 		assert.True(t, util.IsValidID(game.ID.String()))
 		assert.Equal(t, http.StatusCreated, w.Code)
 		w = httptest.NewRecorder()
-		req, _ = http.NewRequest(http.MethodGet, "/api/v1/games/"+game.ID.String(), nil)
+		req, _ = http.NewRequest(http.MethodGet, "/api/v1/games/game/"+game.ID.String(), nil)
 		router.ServeHTTP(w, req)
 
 		var gottenGame *entity.Game
@@ -101,9 +101,50 @@ func TestGameEndpoints(t *testing.T) {
 	t.Run("shouldnt get Game by ID because of bad syntax", func(t *testing.T) {
 		w := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/games/"+"adifhsghkfgiy", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/games/game/"+"adifhsghkfgiy", nil)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("should get Games by category", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		gameName := "Game name"
+		category := "action"
+
+		payload := fmt.Sprintf(`{"name": "` + gameName + `", "categories": ["` + category + `"]}`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+		assert.Nil(t, err)
+
+		w = httptest.NewRecorder()
+		req, err = http.NewRequest(http.MethodGet, "/api/v1/games/categories/"+category, nil)
+		router.ServeHTTP(w, req)
+
+		fmt.Println(w)
+
+		var games []*entity.Game
+		json.NewDecoder(w.Body).Decode(&games)
+		assert.Nil(t, err)
+		assert.True(t, len(games) > 0)
+		assert.True(t, util.IsValidID(games[0].ID.String()))
+		assert.Equal(t, games[0].Name, gameName)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("shouldnt get Games by inexistent category", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		req, err := http.NewRequest(http.MethodGet, "/api/v1/games/categories/"+"inexistent", nil)
+		router.ServeHTTP(w, req)
+
+		fmt.Println(w)
+
+		var games []*entity.Game
+		json.NewDecoder(w.Body).Decode(&games)
+		assert.Nil(t, err)
+		assert.Equal(t, len(games), 0)
+		assert.Equal(t, http.StatusOK, w.Code)
 	})
 
 	t.Run("should delete a Game by ID", func(t *testing.T) {
@@ -122,14 +163,14 @@ func TestGameEndpoints(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, w.Code)
 
 		w = httptest.NewRecorder()
-		req, _ = http.NewRequest(http.MethodDelete, "/api/v1/games/"+game.ID.String(), nil)
+		req, _ = http.NewRequest(http.MethodDelete, "/api/v1/games/game/"+game.ID.String(), nil)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
 	})
 
 	t.Run("shouldnt delete a Game by ID because of bad syntax", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/games/dfadfafgr", nil)
+		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/games/game/dfadfafgr", nil)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
