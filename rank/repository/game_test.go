@@ -168,6 +168,13 @@ func TestFindGamesByCategory(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("should have returned error", func(t *testing.T) {
+
+		m = New(pool, "otherdatabase")
+		games, err := m.FindGamesByCategory("lalala")
+		assert.NotNil(t, err)
+		assert.Nil(t, games)
+	})
 }
 
 func TestFindGameByID(t *testing.T) {
