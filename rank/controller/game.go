@@ -15,7 +15,8 @@ type Game struct {
 type GameController interface {
 	DeleteGameByID(util.Identifier) error
 	FindAllGames() ([]*entity.Game, error)
-	GetGameByID(util.Identifier) (*entity.Game, error)
+	FindGameByCategory(category string) ([]*entity.Game, error)
+	FindGameByID(util.Identifier) (*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
 	UpdateGame(*entity.Game) error
 }
@@ -37,9 +38,15 @@ func (g *Game) FindAllGames() ([]*entity.Game, error) {
 	return g.Repository.FindAllGames()
 }
 
-// GetGameByID requests the Repository layer for a certain Game by its ID.
-func (g *Game) GetGameByID(id util.Identifier) (*entity.Game, error) {
-	return g.Repository.GetGameByID(id)
+// FindGamesByCategory requests the Repository layer to return all Games from database
+// filtering by category.
+func (g *Game) FindGamesByCategory(category string) ([]*entity.Game, error) {
+	return g.Repository.FindGamesByCategory(category)
+}
+
+// FindGameByID requests the Repository layer for a certain Game by its ID.
+func (g *Game) FindGameByID(id util.Identifier) (*entity.Game, error) {
+	return g.Repository.FindGameByID(id)
 }
 
 // StoreGame requests the Repository layer for the insertion of a new Game in the database.

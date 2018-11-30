@@ -45,6 +45,125 @@ func TestFindAllGames(t *testing.T) {
 	})
 }
 
+func TestFindGamesByCategory(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	repo := repository.New(pool, config.MONGODB_DATABASE)
+
+	controller := newGameController(repo)
+
+	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.GAME_COLLECTION).RemoveAll(nil)
+
+	g1 := &entity.Game{
+		Name:       "First game",
+		Categories: []string{"action", "puzzle"},
+	}
+
+	g2 := &entity.Game{
+		Name:       "Second game",
+		Categories: []string{"adventure", "puzzle"},
+	}
+
+	g3 := &entity.Game{
+		Name:       "Third game",
+		Categories: []string{"adventure", "third-person shooter"},
+	}
+
+	controller.StoreGame(g1)
+	controller.StoreGame(g2)
+	controller.StoreGame(g3)
+
+	t.Run("should return all games from Puzzle category", func(t *testing.T) {
+		category := "puzzle"
+		games, err := controller.FindGamesByCategory(category)
+		assert.Equal(t, 2, len(games))
+		assert.Nil(t, err)
+
+		foundFirstGame := false
+		for _, game := range games {
+			if game.Name == g1.Name {
+				foundFirstGame = true
+			}
+		}
+		assert.True(t, foundFirstGame)
+
+		foundSecondGame := false
+		for _, game := range games {
+			if game.Name == g2.Name {
+				foundSecondGame = true
+			}
+		}
+		assert.True(t, foundSecondGame)
+	})
+
+	t.Run("should return all games from Adventure category", func(t *testing.T) {
+		category := "adventure"
+		games, err := controller.FindGamesByCategory(category)
+		assert.Equal(t, 2, len(games))
+		assert.Nil(t, err)
+
+		foundSecondGame := false
+		for _, game := range games {
+			if game.Name == g2.Name {
+				foundSecondGame = true
+			}
+		}
+		assert.True(t, foundSecondGame)
+
+		foundThirdGame := false
+		for _, game := range games {
+			if game.Name == g3.Name {
+				foundThirdGame = true
+			}
+		}
+		assert.True(t, foundThirdGame)
+	})
+
+	t.Run("should return all games from Third-person Shooter category", func(t *testing.T) {
+		category := "third-person shooter"
+		games, err := controller.FindGamesByCategory(category)
+		assert.Equal(t, 1, len(games))
+		assert.Nil(t, err)
+
+		foundThirdGame := false
+		for _, game := range games {
+			if game.Name == g3.Name {
+				foundThirdGame = true
+			}
+		}
+		assert.True(t, foundThirdGame)
+	})
+
+	t.Run("should return all games from Action category", func(t *testing.T) {
+		category := "action"
+		games, err := controller.FindGamesByCategory(category)
+		assert.Equal(t, 1, len(games))
+		assert.Nil(t, err)
+
+		foundFirstGame := false
+		for _, game := range games {
+			if game.Name == g1.Name {
+				foundFirstGame = true
+			}
+		}
+		assert.True(t, foundFirstGame)
+	})
+
+	t.Run("shouldnt return any games from inexistent category", func(t *testing.T) {
+		category := "none"
+		games, err := controller.FindGamesByCategory(category)
+		assert.Equal(t, 0, len(games))
+		assert.Nil(t, err)
+	})
+}
+
 func TestStoreGame(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {
@@ -101,7 +220,7 @@ func TestGetByIDGame(t *testing.T) {
 		id, _ := controller.StoreGame(g1) // TODO
 		assert.Equal(t, true, util.IsValidID(id.String()))
 
-		game, err := controller.GetGameByID(id)
+		game, err := controller.FindGameByID(id)
 		assert.Equal(t, true, util.IsValidID(game.ID.String()))
 		assert.Equal(t, game.Name, name)
 		assert.Nil(t, err)
@@ -134,7 +253,7 @@ func TestDeleteByIDGame(t *testing.T) {
 		err := controller.DeleteGameByID(id)
 		assert.Nil(t, err)
 
-		game, errGetByID := controller.GetGameByID(id)
+		game, errGetByID := controller.FindGameByID(id)
 		assert.Nil(t, game)
 		assert.Nil(t, errGetByID)
 	})
@@ -166,7 +285,7 @@ func TestUpdateGame(t *testing.T) {
 
 		id, _ := controller.StoreGame(g1) // TODO
 
-		game, errGetByID := controller.GetGameByID(id)
+		game, errGetByID := controller.FindGameByID(id)
 		assert.Nil(t, errGetByID)
 		assert.Equal(t, name, game.Name)
 
@@ -176,7 +295,7 @@ func TestUpdateGame(t *testing.T) {
 		err := controller.UpdateGame(game)
 		assert.Nil(t, err)
 
-		updatedGame, errGetByID2 := controller.GetGameByID(id)
+		updatedGame, errGetByID2 := controller.FindGameByID(id)
 		assert.Nil(t, errGetByID2)
 		assert.Equal(t, differentName, updatedGame.Name)
 	})
