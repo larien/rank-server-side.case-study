@@ -15,6 +15,7 @@ type Game interface {
 	FindGamesByCategory(category string) ([]*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
 	UpdateGame(*entity.Game) error
+	FindAllCategories() ([]string, error)
 }
 
 // DeleteGameByID deletes a Game by its ID.
@@ -104,4 +105,17 @@ func (m *MongoDB) InsertCategories() error {
 	collection.RemoveAll(nil)
 
 	return collection.Insert(&c)
+}
+
+// FindAllCategories returns all categories from database.
+func (m *MongoDB) FindAllCategories() ([]string, error) {
+	var category []entity.Categories
+
+	session := m.pool.Session(nil)
+	collection := session.DB(m.db).C(config.CATEGORY_COLLECTION)
+	if err := collection.Find(nil).All(&category); err != nil {
+		return nil, err
+	}
+
+	return category[0].Names, nil
 }
