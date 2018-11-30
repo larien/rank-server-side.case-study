@@ -15,7 +15,7 @@ type Game struct {
 type GameController interface {
 	DeleteGameByID(util.Identifier) error
 	FindAllGames() ([]*entity.Game, error)
-	FindGameByCategory(category string) ([]*entity.Game, error)
+	FindGamesByCategory(category string) ([]*entity.Game, error)
 	FindGameByID(util.Identifier) (*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
 	UpdateGame(*entity.Game) error
