@@ -289,3 +289,24 @@ func TestUpdateGame(t *testing.T) {
 		assert.Equal(t, differentName, updatedGame.Name)
 	})
 }
+
+func TestInsertCategories(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should have inserted all categories", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.CATEGORY_COLLECTION).RemoveAll(nil)
+
+		err := m.InsertCategories()
+		assert.Nil(t, err)
+	})
+
+}
