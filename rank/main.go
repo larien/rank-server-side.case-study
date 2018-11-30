@@ -34,6 +34,10 @@ func Rank() {
 	repo := repository.New(pool, config.MONGODB_DATABASE)
 	log.Printf("Repository layer created")
 
+	if err := repo.InsertCategories(); err != nil {
+		log.Fatal(err.Error())
+	}
+
 	controllers := controller.New(repo)
 	log.Printf("Controller layer created")
 
