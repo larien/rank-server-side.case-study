@@ -39,8 +39,10 @@ func (m *MongoDB) FindAllGames() ([]*entity.Game, error) {
 func (m *MongoDB) FindGamesByCategory(category string) ([]*entity.Game, error) {
 	var games []*entity.Game
 	session := m.pool.Session(nil)
-	coll := session.DB(m.db).C(config.GAME_COLLECTION)
-	coll.Find(bson.M{"categories": category}).All(&games)
+	collection := session.DB(m.db).C(config.GAME_COLLECTION)
+	if err := collection.Find(bson.M{"categories": category}).All(&games); err != nil {
+		return nil, err
+	}
 
 	return games, nil
 }
