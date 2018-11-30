@@ -6,5 +6,6 @@ const (
 	MONGODB_CONNECTION_POOL = 50
 	REVIEW_COLLECTION       = "review"
 	GAME_COLLECTION         = "game"
+	CATEGORY_COLLECTION     = "category"
 	API_PORT                = 8080
 )

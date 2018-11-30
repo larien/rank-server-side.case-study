@@ -25,6 +25,7 @@ func SetGameEndpoints(version *gin.RouterGroup, c controller.GameController) {
 		endpoints.GET("", game.findAll)
 		endpoints.GET("/game/:id", game.getByID)
 		endpoints.GET("/categories/:category", game.getByCategory)
+		endpoints.GET("/categories", game.findAllCategories)
 		endpoints.POST("", game.post)
 		endpoints.PATCH("", game.patch)
 		endpoints.DELETE("/game/:id", game.deleteByID)
@@ -129,7 +130,7 @@ func (g *Game) deleteByID(c *gin.Context) {
 }
 
 // patch handles PATCH /game endpoint and updates an existing Game.
-func (r *Game) patch(c *gin.Context) {
+func (g *Game) patch(c *gin.Context) {
 	var game entity.Game
 
 	if err := c.BindJSON(&game); err != nil {
@@ -143,7 +144,7 @@ func (r *Game) patch(c *gin.Context) {
 		return
 	}
 
-	r.Controller.UpdateGame(&game)
+	g.Controller.UpdateGame(&game)
 
 	c.JSON(
 		http.StatusOK,
@@ -151,4 +152,14 @@ func (r *Game) patch(c *gin.Context) {
 			"status":  http.StatusOK,
 			"message": "Game updated successfully!",
 		})
+}
+
+// findAllCategories handles GET /games requests and returns all Categories from database.
+func (g *Game) findAllCategories(c *gin.Context) {
+	categories, _ := g.Controller.FindAllCategories()
+
+	c.JSON(
+		http.StatusOK,
+		categories,
+	)
 }

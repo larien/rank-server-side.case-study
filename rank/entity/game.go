@@ -19,3 +19,8 @@ type Game struct {
 	Publisher    string          `bson:"publisher" json:"publisher"`
 	CoverImage   string          `bson:"cover_image" json:"cover_image"`
 }
+
+// Categories represents the categories entity and its attribute.
+type Categories struct {
+	Names []string `bson:"categories" json:"categories"`
+}

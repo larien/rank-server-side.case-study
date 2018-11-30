@@ -289,3 +289,64 @@ func TestUpdateGame(t *testing.T) {
 		assert.Equal(t, differentName, updatedGame.Name)
 	})
 }
+
+func TestInsertCategories(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should have inserted all categories", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.CATEGORY_COLLECTION).RemoveAll(nil)
+
+		err := m.InsertCategories()
+		assert.Nil(t, err)
+	})
+}
+
+func TestFindAllCategories(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should have returned all categories", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.CATEGORY_COLLECTION).RemoveAll(nil)
+
+		err := m.InsertCategories()
+		assert.Nil(t, err)
+
+		categories, errCat := m.FindAllCategories()
+		assert.Nil(t, errCat)
+		assert.True(t, len(categories) > 0)
+	})
+
+	t.Run("shouldnt have returned any categories", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.CATEGORY_COLLECTION).RemoveAll(nil)
+
+		categories, errCat := m.FindAllCategories()
+		assert.Nil(t, errCat)
+		assert.True(t, len(categories) == 0)
+	})
+
+	t.Run("should have returned error", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.CATEGORY_COLLECTION).RemoveAll(nil)
+
+		m = New(pool, "otherdatabase")
+		games, err := m.FindAllCategories()
+		assert.NotNil(t, err)
+		assert.Nil(t, games)
+	})
+}

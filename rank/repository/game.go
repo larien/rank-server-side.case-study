@@ -15,6 +15,7 @@ type Game interface {
 	FindGamesByCategory(category string) ([]*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
 	UpdateGame(*entity.Game) error
+	FindAllCategories() ([]string, error)
 }
 
 // DeleteGameByID deletes a Game by its ID.
@@ -50,11 +51,11 @@ func (m *MongoDB) FindGamesByCategory(category string) ([]*entity.Game, error) {
 // FindGameByID finds a Game by its ID.
 func (m *MongoDB) FindGameByID(id util.Identifier) (*entity.Game, error) {
 	session := m.pool.Session(nil)
-	coll := session.DB(m.db).C(config.GAME_COLLECTION)
+	collection := session.DB(m.db).C(config.GAME_COLLECTION)
 
 	var game *entity.Game
 
-	coll.FindId(id).One(&game)
+	collection.FindId(id).One(&game)
 
 	return game, nil
 }
@@ -62,11 +63,11 @@ func (m *MongoDB) FindGameByID(id util.Identifier) (*entity.Game, error) {
 // StoreGame inserts a new Game in the database.
 func (m *MongoDB) StoreGame(game *entity.Game) (util.Identifier, error) {
 	session := m.pool.Session(nil)
-	coll := session.DB(m.db).C(config.GAME_COLLECTION)
+	collection := session.DB(m.db).C(config.GAME_COLLECTION)
 
 	game.ID = util.NewID()
 
-	coll.Insert(game)
+	collection.Insert(game)
 
 	return game.ID, nil
 }
@@ -74,8 +75,51 @@ func (m *MongoDB) StoreGame(game *entity.Game) (util.Identifier, error) {
 // UpdateGame updates an existing Game in the database.
 func (m *MongoDB) UpdateGame(game *entity.Game) error {
 	session := m.pool.Session(nil)
-	coll := session.DB(m.db).C(config.GAME_COLLECTION)
+	collection := session.DB(m.db).C(config.GAME_COLLECTION)
 
-	_, err := coll.UpsertId(game.ID, game) // TODO - avoid null Games
+	_, err := collection.UpsertId(game.ID, game) // TODO - avoid null Games
 	return err
+}
+
+// InsertCategories insert category names in the Category collection from database.
+func (m *MongoDB) InsertCategories() error {
+
+	var c entity.Categories
+
+	c.Names = []string{
+		"action",
+		"adventure",
+		"fighting",
+		"first-person shooting",
+		"puzzle",
+		"racing",
+		"real-time strategy",
+		"sports",
+		"role-playing",
+		"third-person shooting",
+	}
+
+	session := m.pool.Session(nil)
+	collection := session.DB(m.db).C(config.CATEGORY_COLLECTION)
+
+	collection.RemoveAll(nil)
+
+	return collection.Insert(&c)
+}
+
+// FindAllCategories returns all categories from database.
+func (m *MongoDB) FindAllCategories() ([]string, error) {
+	var category []entity.Categories
+
+	session := m.pool.Session(nil)
+	collection := session.DB(m.db).C(config.CATEGORY_COLLECTION)
+	if err := collection.Find(nil).All(&category); err != nil {
+		return nil, err
+	}
+
+	if category == nil {
+		return []string{}, nil
+	}
+
+	return category[0].Names, nil
 }
