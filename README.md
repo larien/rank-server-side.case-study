@@ -7,7 +7,7 @@ Server-side code for Rank, a game review webapp. Project assigned to Lauren Ferr
 1. Technologies
 2. Domain Driven Design
 3. Architecture
-4. Useful commands
+4. Release status
 
 ## Technologies
 
@@ -23,3 +23,9 @@ Server-side code for Rank, a game review webapp. Project assigned to Lauren Ferr
 ## Architecture
 
 [Available here](https://docs.google.com/presentation/d/1NH4MO2jpQqeA6e5S5kc4Rm53hldadl02HEhDqEecSks/edit?usp=sharing)
+
+## Release Status
+
+v1.0.0 - Games Review page
+
+v2.0.0 - Game page
