@@ -19,6 +19,7 @@ type GameController interface {
 	FindGameByID(util.Identifier) (*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
 	UpdateGame(*entity.Game) error
+	FindAllCategories() ([]string, error)
 }
 
 // newGameController creates a new Game Controller.
@@ -57,4 +58,10 @@ func (g *Game) StoreGame(game *entity.Game) (util.Identifier, error) {
 // UpdateGame requests the Repository layer for a Game to be updated in the database.
 func (g *Game) UpdateGame(game *entity.Game) error {
 	return g.Repository.UpdateGame(game)
+}
+
+// FindAllCategories requests the Repository layer to return all Categories
+// as string array from database.
+func (g *Game) FindAllCategories() ([]string, error) {
+	return g.Repository.FindAllCategories()
 }
