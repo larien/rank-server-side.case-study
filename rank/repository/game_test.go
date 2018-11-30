@@ -333,6 +333,14 @@ func TestFindAllCategories(t *testing.T) {
 		assert.True(t, len(categories) > 0)
 	})
 
+	t.Run("shouldnt have returned any categories", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.CATEGORY_COLLECTION).RemoveAll(nil)
+
+		categories, errCat := m.FindAllCategories()
+		assert.Nil(t, errCat)
+		assert.True(t, len(categories) == 0)
+	})
+
 	t.Run("should have returned error", func(t *testing.T) {
 		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.CATEGORY_COLLECTION).RemoveAll(nil)
 

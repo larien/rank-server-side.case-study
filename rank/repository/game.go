@@ -117,5 +117,9 @@ func (m *MongoDB) FindAllCategories() ([]string, error) {
 		return nil, err
 	}
 
+	if category == nil {
+		return []string{}, nil
+	}
+
 	return category[0].Names, nil
 }
