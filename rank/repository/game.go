@@ -4,13 +4,15 @@ import (
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/framework/config"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // Game defines the methods must be implemented by injected layer.
 type Game interface {
 	DeleteGameByID(util.Identifier) error
 	FindAllGames() ([]*entity.Game, error)
-	GetGameByID(util.Identifier) (*entity.Game, error)
+	FindGameByID(util.Identifier) (*entity.Game, error)
+	FindGamesByCategory(category string) ([]*entity.Game, error)
 	StoreGame(*entity.Game) (util.Identifier, error)
 	UpdateGame(*entity.Game) error
 }
@@ -20,7 +22,7 @@ func (m *MongoDB) DeleteGameByID(id util.Identifier) error {
 	return m.pool.Session(nil).DB(m.db).C(config.GAME_COLLECTION).RemoveId(id)
 }
 
-// FindAllGames returns all Game from the database sorted by ID.
+// FindAllGames returns all Games from the database sorted by ID.
 func (m *MongoDB) FindAllGames() ([]*entity.Game, error) {
 	var games []*entity.Game
 
@@ -33,8 +35,18 @@ func (m *MongoDB) FindAllGames() ([]*entity.Game, error) {
 	return games, nil
 }
 
-// GetGameByID finds a Game by its ID.
-func (m *MongoDB) GetGameByID(id util.Identifier) (*entity.Game, error) {
+// FindGamesByCategory returns all Games from the database filtered by category.
+func (m *MongoDB) FindGamesByCategory(category string) ([]*entity.Game, error) {
+	var games []*entity.Game
+	session := m.pool.Session(nil)
+	coll := session.DB(m.db).C(config.GAME_COLLECTION)
+	coll.Find(bson.M{"categories": category}).All(&games)
+
+	return games, nil
+}
+
+// FindGameByID finds a Game by its ID.
+func (m *MongoDB) FindGameByID(id util.Identifier) (*entity.Game, error) {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.GAME_COLLECTION)
 
