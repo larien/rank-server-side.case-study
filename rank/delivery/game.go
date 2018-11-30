@@ -23,10 +23,11 @@ func SetGameEndpoints(version *gin.RouterGroup, c controller.GameController) {
 	endpoints := version.Group("/games")
 	{
 		endpoints.GET("", game.findAll)
-		endpoints.GET("/:id", game.getByID)
+		endpoints.GET("/game/:id", game.getByID)
+		endpoints.GET("/categories/:category", game.getByCategory)
 		endpoints.POST("", game.post)
 		endpoints.PATCH("", game.patch)
-		endpoints.DELETE("/:id", game.deleteByID)
+		endpoints.DELETE("/game/:id", game.deleteByID)
 	}
 }
 
@@ -34,6 +35,43 @@ func SetGameEndpoints(version *gin.RouterGroup, c controller.GameController) {
 func (g *Game) findAll(c *gin.Context) {
 	games, _ := g.Controller.FindAllGames()
 
+	c.JSON(
+		http.StatusOK,
+		games,
+	)
+}
+
+// getByID handles GET /games/game/:id requests and returns desired Game by its ID.
+func (g *Game) getByID(c *gin.Context) {
+	id := c.Param("id")
+	if !util.IsValidID(id) {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Invalid ID",
+				"error":   util.ErrInvalidID,
+			})
+		return
+	}
+
+	bson := util.StringToID(id)
+	game, _ := g.Controller.FindGameByID(bson)
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+			"game":   game,
+		})
+}
+
+// getByCategory handles GET /games/category/:name requests and returns all Games
+// filtered by desired category.
+func (g *Game) getByCategory(c *gin.Context) {
+	category := c.Param("category")
+
+	games, _ := g.Controller.FindGamesByCategory(category)
 	c.JSON(
 		http.StatusOK,
 		games,
@@ -63,31 +101,6 @@ func (g *Game) post(c *gin.Context) {
 			"status":  http.StatusCreated,
 			"message": "Game created successfully!",
 			"id":      id,
-		})
-}
-
-// getByID handles GET /game/:id requests and returns desired Game by its ID.
-func (g *Game) getByID(c *gin.Context) {
-	id := c.Param("id")
-	if !util.IsValidID(id) {
-		c.JSON(
-			http.StatusBadRequest,
-			gin.H{
-				"status":  http.StatusBadRequest,
-				"message": "Invalid ID",
-				"error":   util.ErrInvalidID,
-			})
-		return
-	}
-
-	bson := util.StringToID(id)
-	game, _ := g.Controller.GetGameByID(bson)
-
-	c.JSON(
-		http.StatusOK,
-		gin.H{
-			"status": http.StatusOK,
-			"game":   game,
 		})
 }
 
