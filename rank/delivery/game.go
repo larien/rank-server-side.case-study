@@ -67,7 +67,7 @@ func (g *Game) getByID(c *gin.Context) {
 		})
 }
 
-// getByCategory handles GET /games/category/:name requests and returns all Games
+// getByCategory handles GET /games/categories/:category requests and returns all Games
 // filtered by desired category.
 func (g *Game) getByCategory(c *gin.Context) {
 	category := c.Param("category")
