@@ -46,6 +46,41 @@ func TestFindAllReviews(t *testing.T) {
 	})
 }
 
+func TestFindAllUnpublishedReviews(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should have returned all unpublished reviews", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
+
+		r1 := &entity.Review{
+			Title: "Title 1",
+		}
+
+		m.StoreReview(r1)
+		reviews, err := m.FindAllUnpublishedReviews()
+		assert.Nil(t, err)
+		assert.Equal(t, 1, len(reviews))
+		assert.Equal(t, "Title 1", reviews[0].Title)
+		assert.False(t, reviews[0].IsPublished)
+	})
+
+	t.Run("should have returned error", func(t *testing.T) {
+		m = New(pool, "otherdatabase")
+		reviews, err := m.FindAllUnpublishedReviews()
+		assert.NotNil(t, err)
+		assert.Nil(t, reviews)
+	})
+}
+
 func TestStoreReview(t *testing.T) {
 	session, err := mgo.Dial(config.MONGODB_HOST)
 	if err != nil {

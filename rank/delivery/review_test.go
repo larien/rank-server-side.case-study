@@ -42,11 +42,26 @@ func TestReviewEndpoints(t *testing.T) {
 		SetReviewEndpoints(v1, controller)
 	})
 
-	t.Run("should set Review GET endpoint", func(t *testing.T) {
+	t.Run("should set Review GET endpoint", func(t *testing.T) { // TODO - improve test
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest(http.MethodGet, "/api/v1/reviews", nil)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("should set Unpublished Review GET endpoint", func(t *testing.T) { // TODO - improve test
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/reviews/unpublished", nil)
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("shouldnt set Unpublished Review GET endpoint because of unauthorized request", func(t *testing.T) { // TODO - improve test
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/reviews/unpublished", nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
 	t.Run("should have created resource", func(t *testing.T) {
@@ -105,7 +120,7 @@ func TestReviewEndpoints(t *testing.T) {
 		assert.True(t, util.IsValidID(review.ID.String()))
 		assert.Equal(t, http.StatusCreated, w.Code)
 		w = httptest.NewRecorder()
-		req, _ = http.NewRequest(http.MethodGet, "/api/v1/reviews/"+review.ID.String(), nil)
+		req, _ = http.NewRequest(http.MethodGet, "/api/v1/reviews/review/"+review.ID.String(), nil)
 		router.ServeHTTP(w, req)
 
 		var gottenReview *entity.Review
@@ -116,7 +131,7 @@ func TestReviewEndpoints(t *testing.T) {
 	t.Run("shouldnt get Review by ID because of bad syntax", func(t *testing.T) {
 		w := httptest.NewRecorder()
 
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/reviews/"+"adifhsghkfgiy", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/reviews/review/"+"adifhsghkfgiy", nil)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
@@ -138,7 +153,7 @@ func TestReviewEndpoints(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, w.Code)
 
 		w = httptest.NewRecorder()
-		req, _ = http.NewRequest(http.MethodDelete, "/api/v1/reviews/"+review.ID.String(), nil)
+		req, _ = http.NewRequest(http.MethodDelete, "/api/v1/reviews/review/"+review.ID.String(), nil)
 		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
@@ -146,7 +161,7 @@ func TestReviewEndpoints(t *testing.T) {
 
 	t.Run("shouldnt delete a Review by ID because of bad syntax", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/reviews/dfadfafgr", nil)
+		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/reviews/review/dfadfafgr", nil)
 		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -154,7 +169,7 @@ func TestReviewEndpoints(t *testing.T) {
 
 	t.Run("shouldnt delete a Review by ID because of unauthorized request", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/reviews/dfaddfafgr", nil)
+		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/reviews/review/dfaddfafgr", nil)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
@@ -214,7 +229,7 @@ func TestReviewEndpoints(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
-	t.Run("shouldnt update a Review because of wrong syntax", func(t *testing.T) {
+	t.Run("shouldnt update a Review because of unauthorized request", func(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		payload := fmt.Sprintf(`{

@@ -134,6 +134,7 @@ func TestGameEndpoints(t *testing.T) {
 
 		payload := fmt.Sprintf(`{"name": "` + gameName + `", "categories": ["` + category + `"]}`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		assert.Nil(t, err)
 

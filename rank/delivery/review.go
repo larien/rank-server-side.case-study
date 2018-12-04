@@ -25,16 +25,38 @@ func SetReviewEndpoints(version *gin.RouterGroup, c controller.ReviewController)
 	endpoints := version.Group("/reviews")
 	{
 		endpoints.GET("", review.findAll)
-		endpoints.GET("/:id", review.getByID)
+		endpoints.GET("/unpublished", review.findAllUnpublished)
+		endpoints.GET("/review/:id", review.getByID)
 		endpoints.POST("", review.post)
 		endpoints.PATCH("", review.patch)
-		endpoints.DELETE("/:id", review.deleteByID)
+		endpoints.DELETE("/review/:id", review.deleteByID)
 	}
 }
 
 // findAll handles GET /review requests and returns all Reviews from database.
 func (r *Review) findAll(c *gin.Context) {
-	reviews, _ := r.Controller.FindAllReviews()
+	reviews, _ := r.Controller.FindAllReviews() // TODO - handle error
+
+	c.JSON(
+		http.StatusOK,
+		reviews,
+	)
+}
+
+// findAllUnpublished handles GET /reviews/unpublished requests and returns all unpublished
+// Reviews from database.
+func (r *Review) findAllUnpublished(c *gin.Context) {
+	if !authorizate(c.Request.Header.Get("Authorization")) {
+		c.JSON(
+			http.StatusUnauthorized,
+			gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "Unauthorized",
+			})
+		return
+	}
+
+	reviews, _ := r.Controller.FindAllUnpublishedReviews() // TODO - handle error
 
 	c.JSON(
 		http.StatusOK,

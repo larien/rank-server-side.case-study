@@ -17,4 +17,5 @@ type Review struct {
 	ReadingTime     string          `bson:"reading_time" json:"reading_time"`
 	TextReview      string          `bson:"text_review" json:"text_review"`
 	CoverImage      string          `bson:"cover_image" json:"cover_image"`
+	IsPublished     bool            `bson:"is_published" json:"is_published"`
 }
