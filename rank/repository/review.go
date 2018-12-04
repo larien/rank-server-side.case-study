@@ -76,13 +76,12 @@ func (m *MongoDB) StoreReview(review *entity.Review) (util.Identifier, error) {
 	return review.ID, nil
 }
 
-// UpdateReview updates an existing Review in the database.
+// UpdateReview updates an existing Review changing is_published and updated_at fields in the database.
 func (m *MongoDB) UpdateReview(review *entity.Review) error {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
-	review.UpdatedAt = time.Now()
+	err := coll.UpdateId(review.ID, bson.M{"$set": bson.M{"is_published": review.IsPublished, "updated_at": time.Now()}}) // TODO - avoid null Reviews
 
-	_, err := coll.UpsertId(review.ID, review) // TODO - avoid null Reviews
 	return err
 }
