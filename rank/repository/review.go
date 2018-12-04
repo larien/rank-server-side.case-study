@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/middlewares/config"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
@@ -51,6 +53,8 @@ func (m *MongoDB) StoreReview(review *entity.Review) (util.Identifier, error) {
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
 	review.ID = util.NewID()
+	review.UpdatedAt = time.Now()
+	review.IsPublished = false
 
 	coll.Insert(review)
 
@@ -61,6 +65,8 @@ func (m *MongoDB) StoreReview(review *entity.Review) (util.Identifier, error) {
 func (m *MongoDB) UpdateReview(review *entity.Review) error {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
+
+	review.UpdatedAt = time.Now()
 
 	_, err := coll.UpsertId(review.ID, review) // TODO - avoid null Reviews
 	return err
