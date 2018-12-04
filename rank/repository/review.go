@@ -6,6 +6,7 @@ import (
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/middlewares/config"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // Review defines the methods must be implemented by injected layer.
@@ -29,6 +30,19 @@ func (m *MongoDB) FindAllReviews() ([]*entity.Review, error) {
 	session := m.pool.Session(nil)
 	collection := session.DB(m.db).C(config.REVIEW_COLLECTION)
 	if err := collection.Find(nil).Sort("id").All(&reviews); err != nil {
+		return nil, err
+	}
+
+	return reviews, nil
+}
+
+// FindAllUnpublishedReviews returns all unpublished Reviews from the database sorted by ID.
+func (m *MongoDB) FindAllUnpublishedReviews() ([]*entity.Review, error) {
+	var reviews []*entity.Review
+
+	session := m.pool.Session(nil)
+	collection := session.DB(m.db).C(config.REVIEW_COLLECTION)
+	if err := collection.Find(bson.M{"is_published": false}).Sort("id").All(&reviews); err != nil {
 		return nil, err
 	}
 
