@@ -15,6 +15,7 @@ type Review struct {
 type ReviewController interface {
 	DeleteReviewByID(util.Identifier) error
 	FindAllReviews() ([]*entity.Review, error)
+	// FindAllUnpublishedReviews() ([]*entity.Review, error)
 	GetReviewByID(util.Identifier) (*entity.Review, error)
 	StoreReview(*entity.Review) (util.Identifier, error)
 	UpdateReview(*entity.Review) error
@@ -35,6 +36,11 @@ func (r *Review) DeleteReviewByID(id util.Identifier) error {
 // FindAllReviews requests the Repository layer to return all Reviews from database.
 func (r *Review) FindAllReviews() ([]*entity.Review, error) {
 	return r.Repository.FindAllReviews()
+}
+
+// FindAllUnpublishedReviews requests the Repository layer to return all unpublished Reviews from database.
+func (r *Review) FindAllUnpublishedReviews() ([]*entity.Review, error) {
+	return r.Repository.FindAllUnpublishedReviews()
 }
 
 // GetReviewByID requests the Repository layer for a certain Review by its ID.

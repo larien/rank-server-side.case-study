@@ -13,6 +13,7 @@ import (
 type Review interface {
 	DeleteReviewByID(util.Identifier) error
 	FindAllReviews() ([]*entity.Review, error)
+	FindAllUnpublishedReviews() ([]*entity.Review, error)
 	GetReviewByID(util.Identifier) (*entity.Review, error)
 	StoreReview(*entity.Review) (util.Identifier, error)
 	UpdateReview(*entity.Review) error
