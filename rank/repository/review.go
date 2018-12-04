@@ -24,13 +24,13 @@ func (m *MongoDB) DeleteReviewByID(id util.Identifier) error {
 	return m.pool.Session(nil).DB(m.db).C(config.REVIEW_COLLECTION).RemoveId(id)
 }
 
-// FindAllReviews returns all Reviews from the database sorted by ID.
+// FindAllReviews returns all published Reviews from the database sorted by ID.
 func (m *MongoDB) FindAllReviews() ([]*entity.Review, error) {
 	var reviews []*entity.Review
 
 	session := m.pool.Session(nil)
 	collection := session.DB(m.db).C(config.REVIEW_COLLECTION)
-	if err := collection.Find(nil).Sort("id").All(&reviews); err != nil {
+	if err := collection.Find(bson.M{"is_published": true}).Sort("id").All(&reviews); err != nil {
 		return nil, err
 	}
 
