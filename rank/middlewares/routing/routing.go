@@ -27,7 +27,7 @@ func endpoints(router *gin.Engine, controllers *controller.Controllers) {
 	}
 }
 
-// setup sets router with Gin framework and returns
+// setup sets router with Gin middlewares and returns
 // its default engine. It also sets up a response to the
 // /hello GET request.
 func setup() *gin.Engine {

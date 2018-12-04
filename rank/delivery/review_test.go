@@ -13,7 +13,7 @@ import (
 	"github.com/juju/mgosession"
 	"github.com/stretchr/testify/assert"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/entity"
-	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/framework/config"
+	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/middlewares/config"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/repository"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/util"
 	mgo "gopkg.in/mgo.v2"
@@ -56,6 +56,7 @@ func TestReviewEndpoints(t *testing.T) {
 			"title": "Title 1"
 		  }`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 
 		var review *entity.Review
@@ -73,8 +74,21 @@ func TestReviewEndpoints(t *testing.T) {
 		  }`)
 
 		req, _ := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("shouldnt have created resource because of unauthorized request", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"title":
+		  }`)
+
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
 	t.Run("should get Review by ID", func(t *testing.T) {
@@ -82,6 +96,7 @@ func TestReviewEndpoints(t *testing.T) {
 
 		payload := fmt.Sprintf(`{"title": "Title 1"}`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 
 		var review *entity.Review
@@ -113,6 +128,7 @@ func TestReviewEndpoints(t *testing.T) {
 			"title": "Title 1"
 		  }`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 
 		var review *entity.Review
@@ -123,6 +139,7 @@ func TestReviewEndpoints(t *testing.T) {
 
 		w = httptest.NewRecorder()
 		req, _ = http.NewRequest(http.MethodDelete, "/api/v1/reviews/"+review.ID.String(), nil)
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
 	})
@@ -130,8 +147,16 @@ func TestReviewEndpoints(t *testing.T) {
 	t.Run("shouldnt delete a Review by ID because of bad syntax", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/reviews/dfadfafgr", nil)
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("shouldnt delete a Review by ID because of unauthorized request", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/reviews/dfaddfafgr", nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
 	t.Run("should update a Review", func(t *testing.T) {
@@ -141,6 +166,7 @@ func TestReviewEndpoints(t *testing.T) {
 			"title": "Title 1"
 		  }`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		var review *entity.Review
 		json.NewDecoder(w.Body).Decode(&review)
@@ -154,6 +180,7 @@ func TestReviewEndpoints(t *testing.T) {
 			"title": "New Title"
 		  }`)
 		req, err = http.NewRequest(http.MethodPatch, "/api/v1/reviews", strings.NewReader(newPayload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 
 		var response *entity.Review
@@ -168,6 +195,33 @@ func TestReviewEndpoints(t *testing.T) {
 			"title": "Title 1"
 		  }`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		var review *entity.Review
+		json.NewDecoder(w.Body).Decode(&review)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(review.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"id": "` + review.ID.String() + `",
+			"title": 
+		  }`)
+		req, err = http.NewRequest(http.MethodPatch, "/api/v1/reviews", strings.NewReader(newPayload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("shouldnt update a Review because of wrong syntax", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"title": "Title 1"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		var review *entity.Review
 		json.NewDecoder(w.Body).Decode(&review)
@@ -182,7 +236,7 @@ func TestReviewEndpoints(t *testing.T) {
 		  }`)
 		req, err = http.NewRequest(http.MethodPatch, "/api/v1/reviews", strings.NewReader(newPayload))
 		router.ServeHTTP(w, req)
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
 }

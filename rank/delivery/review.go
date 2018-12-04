@@ -44,6 +44,17 @@ func (r *Review) findAll(c *gin.Context) {
 
 // post handles POST /review requests on creating a new Review.
 func (r *Review) post(c *gin.Context) {
+
+	if !authorizate(c.Request.Header.Get("Authorization")) {
+		c.JSON(
+			http.StatusUnauthorized,
+			gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "Unauthorized",
+			})
+		return
+	}
+
 	var review entity.Review
 
 	if err := c.BindJSON(&review); err != nil {
@@ -95,6 +106,16 @@ func (r *Review) getByID(c *gin.Context) {
 
 // deleteByID handles DELETE /review/:id requests and deletes desired Review by its ID.
 func (r *Review) deleteByID(c *gin.Context) {
+	if !authorizate(c.Request.Header.Get("Authorization")) {
+		c.JSON(
+			http.StatusUnauthorized,
+			gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "Unauthorized",
+			})
+		return
+	}
+
 	id := c.Param("id")
 	if !util.IsValidID(id) {
 		c.JSON(
@@ -119,6 +140,16 @@ func (r *Review) deleteByID(c *gin.Context) {
 
 // patch handles PATCH /review endpoint and updates an existing Review.
 func (r *Review) patch(c *gin.Context) {
+	if !authorizate(c.Request.Header.Get("Authorization")) {
+		c.JSON(
+			http.StatusUnauthorized,
+			gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "Unauthorized",
+			})
+		return
+	}
+
 	var review entity.Review
 
 	if err := c.BindJSON(&review); err != nil {

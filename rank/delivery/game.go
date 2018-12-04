@@ -29,6 +29,7 @@ func SetGameEndpoints(version *gin.RouterGroup, c controller.GameController) {
 		endpoints.POST("", game.post)
 		endpoints.PATCH("", game.patch)
 		endpoints.DELETE("/game/:id", game.deleteByID)
+		endpoints.POST("/signin", signIn())
 	}
 }
 
@@ -81,6 +82,16 @@ func (g *Game) getByCategory(c *gin.Context) {
 
 // post handles POST /games requests on creating a new Game.
 func (g *Game) post(c *gin.Context) {
+	if !authorizate(c.Request.Header.Get("Authorization")) {
+		c.JSON(
+			http.StatusUnauthorized,
+			gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "Unauthorized",
+			})
+		return
+	}
+
 	var game entity.Game
 
 	if err := c.BindJSON(&game); err != nil {
@@ -107,6 +118,16 @@ func (g *Game) post(c *gin.Context) {
 
 // deleteByID handles DELETE /game/:id requests and deletes desired Game by its ID.
 func (g *Game) deleteByID(c *gin.Context) {
+	if !authorizate(c.Request.Header.Get("Authorization")) {
+		c.JSON(
+			http.StatusUnauthorized,
+			gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "Unauthorized",
+			})
+		return
+	}
+
 	id := c.Param("id")
 	if !util.IsValidID(id) {
 		c.JSON(
@@ -131,6 +152,16 @@ func (g *Game) deleteByID(c *gin.Context) {
 
 // patch handles PATCH /game endpoint and updates an existing Game.
 func (g *Game) patch(c *gin.Context) {
+	if !authorizate(c.Request.Header.Get("Authorization")) {
+		c.JSON(
+			http.StatusUnauthorized,
+			gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "Unauthorized",
+			})
+		return
+	}
+
 	var game entity.Game
 
 	if err := c.BindJSON(&game); err != nil {

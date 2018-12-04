@@ -6,7 +6,7 @@ import (
 
 	"github.com/juju/mgosession"
 	"github.com/stretchr/testify/assert"
-	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/framework/config"
+	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/middlewares/config"
 	"github.coventry.ac.uk/340CT-1819SEPJAN/ferrei28-server-side/rank/repository"
 	mgo "gopkg.in/mgo.v2"
 )
