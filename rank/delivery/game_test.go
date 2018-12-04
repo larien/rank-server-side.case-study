@@ -20,6 +20,8 @@ import (
 )
 
 // TODO - develop modular endpoint tests
+const exampleToken = "340CT"
+
 func TestGameEndpoints(t *testing.T) {
 
 	session, err := mgo.Dial(config.MONGODB_HOST)
@@ -59,6 +61,7 @@ func TestGameEndpoints(t *testing.T) {
 			"name": "Game 1"
 		  }`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 
 		var game *entity.Game
@@ -76,8 +79,21 @@ func TestGameEndpoints(t *testing.T) {
 		  }`)
 
 		req, _ := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("shouldnt have created resource because of unauthorized request", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"name":
+		  }`)
+
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
 	t.Run("should get Game by ID", func(t *testing.T) {
@@ -85,6 +101,7 @@ func TestGameEndpoints(t *testing.T) {
 
 		payload := fmt.Sprintf(`{"name": "Game name"}`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 
 		var game *entity.Game
@@ -157,6 +174,7 @@ func TestGameEndpoints(t *testing.T) {
 			"name": "Game Name"
 		  }`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 
 		var game *entity.Game
@@ -167,6 +185,7 @@ func TestGameEndpoints(t *testing.T) {
 
 		w = httptest.NewRecorder()
 		req, _ = http.NewRequest(http.MethodDelete, "/api/v1/games/game/"+game.ID.String(), nil)
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusOK, w.Code)
 	})
@@ -174,8 +193,16 @@ func TestGameEndpoints(t *testing.T) {
 	t.Run("shouldnt delete a Game by ID because of bad syntax", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/games/game/dfadfafgr", nil)
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("shouldnt delete a Game by ID because of unauthorized request", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodDelete, "/api/v1/games/game/dfadfafgr", nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
 	t.Run("should update a Game", func(t *testing.T) {
@@ -185,6 +212,7 @@ func TestGameEndpoints(t *testing.T) {
 			"name": "Game name"
 		  }`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		var game *entity.Game
 		json.NewDecoder(w.Body).Decode(&game)
@@ -198,6 +226,7 @@ func TestGameEndpoints(t *testing.T) {
 			"name": "New Name"
 		  }`)
 		req, err = http.NewRequest(http.MethodPatch, "/api/v1/games", strings.NewReader(newPayload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 
 		var response *entity.Game
@@ -212,6 +241,33 @@ func TestGameEndpoints(t *testing.T) {
 			"name": "Game Name"
 		  }`)
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		var game *entity.Game
+		json.NewDecoder(w.Body).Decode(&game)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(game.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"id": "` + game.ID.String() + `",
+			"name": 
+		  }`)
+		req, err = http.NewRequest(http.MethodPatch, "/api/v1/games", strings.NewReader(newPayload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("shouldnt update a Game by ID because of unauthorized request", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"name": "Game Name"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/games", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
 		router.ServeHTTP(w, req)
 		var game *entity.Game
 		json.NewDecoder(w.Body).Decode(&game)
@@ -226,7 +282,7 @@ func TestGameEndpoints(t *testing.T) {
 		  }`)
 		req, err = http.NewRequest(http.MethodPatch, "/api/v1/games", strings.NewReader(newPayload))
 		router.ServeHTTP(w, req)
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
 	t.Run("shouldnt return any category", func(t *testing.T) {
@@ -240,5 +296,19 @@ func TestGameEndpoints(t *testing.T) {
 		var c categories
 		json.NewDecoder(w.Body).Decode(&c)
 		assert.Empty(t, c)
+	})
+
+	t.Run("should have sign in", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"username": "admin",
+			"password": "admin"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/games/signin", strings.NewReader(payload))
+		router.ServeHTTP(w, req)
+
+		assert.Nil(t, err)
+		assert.Equal(t, http.StatusOK, w.Code)
 	})
 }
