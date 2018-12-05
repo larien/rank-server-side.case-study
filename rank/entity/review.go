@@ -24,6 +24,6 @@ type Rating struct {
 	ID       util.Identifier `bson:"_id,omitempty" json:"id"`
 	ReviewID util.Identifier `bson:"review_id,omitempty" json:"review_id"`
 	// UserID   util.Identifier `bson:"user_id,omitempty" json:"user_id"`
-	Rating    int       `bson:"rating" json:"rating"`
+	Rate      int       `bson:"rating" json:"rating"`
 	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
 }
