@@ -127,3 +127,8 @@ func (m *MongoDB) FindRatingsByReview(reviewID util.Identifier) ([]*entity.Ratin
 
 	return ratings, nil
 }
+
+// GetAverageRating is a function created to implement the interface.
+func (m *MongoDB) GetAverageRating(reviewID util.Identifier) (int, error) {
+	return 0, nil
+}

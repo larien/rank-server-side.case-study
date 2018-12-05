@@ -367,3 +367,22 @@ func TestFindRatingsByReview(t *testing.T) {
 		assert.Nil(t, ratings)
 	})
 }
+
+func TestGetAverageRating(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should have returned all nil", func(t *testing.T) {
+		rate, err := m.GetAverageRating(util.NewID())
+		assert.Nil(t, err)
+		assert.Equal(t, 0, rate)
+	})
+}
