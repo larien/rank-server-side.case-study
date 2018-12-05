@@ -17,7 +17,8 @@ type Review interface {
 	GetReviewByID(util.Identifier) (*entity.Review, error)
 	StoreReview(*entity.Review) (util.Identifier, error)
 	UpdateReview(*entity.Review) error
-	// RateReview(*entity.Rating) error
+	RateReview(*entity.Rating) (util.Identifier, error)
+	FindRatingsByReview(reviewID util.Identifier) ([]*entity.Rating, error)
 }
 
 // DeleteReviewByID deletes a Review by its ID.
@@ -107,6 +108,19 @@ func (m *MongoDB) FindAllRatings() ([]*entity.Rating, error) {
 	session := m.pool.Session(nil)
 	collection := session.DB(m.db).C(config.RATING_COLLECTION)
 	if err := collection.Find(nil).Sort("id").All(&ratings); err != nil {
+		return nil, err
+	}
+
+	return ratings, nil
+}
+
+// FindRatingsByReview returns all Ratings of a certain Review from the database sorted by ID.
+func (m *MongoDB) FindRatingsByReview(reviewID util.Identifier) ([]*entity.Rating, error) {
+	var ratings []*entity.Rating
+
+	session := m.pool.Session(nil)
+	collection := session.DB(m.db).C(config.RATING_COLLECTION)
+	if err := collection.Find(bson.M{"review_id": reviewID}).Sort("id").All(&ratings); err != nil {
 		return nil, err
 	}
 

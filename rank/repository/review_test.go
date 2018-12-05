@@ -257,7 +257,7 @@ func TestRateReview(t *testing.T) {
 
 		rating := &entity.Rating{
 			ReviewID: reviewID,
-			Rating:   5,
+			Rate:     5,
 		}
 
 		ratingID, err := m.RateReview(rating)
@@ -292,7 +292,7 @@ func TestFindAllRatings(t *testing.T) {
 
 		rating := &entity.Rating{
 			ReviewID: reviewID,
-			Rating:   5,
+			Rate:     5,
 		}
 
 		ratingID, err := m.RateReview(rating)
@@ -310,6 +310,59 @@ func TestFindAllRatings(t *testing.T) {
 	t.Run("should have returned error", func(t *testing.T) {
 		m = New(pool, "otherdatabase")
 		ratings, err := m.FindAllRatings()
+		assert.NotNil(t, err)
+		assert.Nil(t, ratings)
+	})
+}
+
+func TestFindRatingsByReview(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should have returned Ratings by a certain Review", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.RATING_COLLECTION).RemoveAll(nil)
+
+		review := &entity.Review{
+			Title: "Title 1",
+		}
+
+		// TODO
+		reviewID, _ := m.StoreReview(review)
+
+		rating1 := &entity.Rating{
+			ReviewID: reviewID,
+			Rate:     5,
+		}
+		rating2 := &entity.Rating{
+			ReviewID: reviewID,
+			Rate:     5,
+		}
+
+		rating1ID, err1 := m.RateReview(rating1)
+		rating2ID, err2 := m.RateReview(rating2)
+
+		assert.Nil(t, err1)
+		assert.Nil(t, err2)
+		assert.True(t, util.IsValidID(rating1ID.String()))
+		assert.True(t, util.IsValidID(rating2ID.String()))
+
+		ratings, err := m.FindRatingsByReview(reviewID)
+		assert.Nil(t, err)
+		assert.NotNil(t, ratings)
+		assert.Equal(t, len(ratings), 2)
+	})
+
+	t.Run("should have returned error", func(t *testing.T) {
+		m = New(pool, "otherdatabase")
+		ratings, err := m.FindRatingsByReview(util.NewID())
 		assert.NotNil(t, err)
 		assert.Nil(t, ratings)
 	})
