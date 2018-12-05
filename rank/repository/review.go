@@ -19,6 +19,7 @@ type Review interface {
 	UpdateReview(*entity.Review) error
 	RateReview(*entity.Rating) (util.Identifier, error)
 	FindRatingsByReview(reviewID util.Identifier) ([]*entity.Rating, error)
+	GetAverageRating(reviewID util.Identifier) (int, error)
 }
 
 // DeleteReviewByID deletes a Review by its ID.
