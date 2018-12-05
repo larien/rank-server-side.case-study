@@ -17,6 +17,7 @@ type Review interface {
 	GetReviewByID(util.Identifier) (*entity.Review, error)
 	StoreReview(*entity.Review) (util.Identifier, error)
 	UpdateReview(*entity.Review) error
+	// RateReview(*entity.Rating) error
 }
 
 // DeleteReviewByID deletes a Review by its ID.
@@ -67,7 +68,7 @@ func (m *MongoDB) StoreReview(review *entity.Review) (util.Identifier, error) {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
-	review.ID = util.NewID()
+	review.ID = util.NewID() // TODO - improve function
 	review.UpdatedAt = time.Now()
 	review.IsPublished = false
 
@@ -81,7 +82,33 @@ func (m *MongoDB) UpdateReview(review *entity.Review) error {
 	session := m.pool.Session(nil)
 	coll := session.DB(m.db).C(config.REVIEW_COLLECTION)
 
-	err := coll.UpdateId(review.ID, bson.M{"$set": bson.M{"is_published": review.IsPublished, "updated_at": time.Now()}}) // TODO - avoid null Reviews
+	err := coll.UpdateId(review.ID, bson.M{"$set": bson.M{"is_published": true, "updated_at": time.Now()}}) // TODO - avoid null Reviews
 
 	return err
+}
+
+// RateReview inserts a new Rating in the database.
+func (m *MongoDB) RateReview(rating *entity.Rating) (util.Identifier, error) {
+	session := m.pool.Session(nil)
+	coll := session.DB(m.db).C(config.RATING_COLLECTION)
+
+	rating.ID = util.NewID() // TODO - improve function
+	rating.UpdatedAt = time.Now()
+
+	coll.Insert(rating)
+
+	return rating.ID, nil
+}
+
+// FindAllRatings returns all Ratings from the database sorted by ID.
+func (m *MongoDB) FindAllRatings() ([]*entity.Rating, error) {
+	var ratings []*entity.Rating
+
+	session := m.pool.Session(nil)
+	collection := session.DB(m.db).C(config.RATING_COLLECTION)
+	if err := collection.Find(nil).Sort("id").All(&ratings); err != nil {
+		return nil, err
+	}
+
+	return ratings, nil
 }

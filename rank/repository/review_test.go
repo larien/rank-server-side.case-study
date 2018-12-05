@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"log"
 	"testing"
 
@@ -24,15 +25,24 @@ func TestFindAllReviews(t *testing.T) {
 
 	m := New(pool, config.MONGODB_DATABASE)
 
-	t.Run("should have returned all reviews", func(t *testing.T) {
+	t.Run("should have returned all published reviews", func(t *testing.T) {
 		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
 
 		r1 := &entity.Review{
 			Title: "Title 1",
 		}
 
-		m.StoreReview(r1)
+		id, _ := m.StoreReview(r1)
+
+		review, _ := m.GetReviewByID(id)
+		fmt.Println(review)
+
+		review.ID = id
+		m.UpdateReview(review)
+
 		reviews, err := m.FindAllReviews()
+		fmt.Println(r1)
+		fmt.Println(reviews)
 		assert.Nil(t, err)
 		assert.Equal(t, 1, len(reviews))
 		assert.Equal(t, "Title 1", reviews[0].Title)
@@ -103,6 +113,12 @@ func TestStoreReview(t *testing.T) {
 
 		// TODO
 		id, _ := m.StoreReview(r1)
+
+		review, _ := m.GetReviewByID(id)
+		fmt.Println(review)
+
+		review.ID = id
+		m.UpdateReview(review)
 
 		reviews, errFindAll := m.FindAllReviews()
 
@@ -192,7 +208,6 @@ func TestUpdateReview(t *testing.T) {
 	m := New(pool, config.MONGODB_DATABASE)
 
 	t.Run("should have updated a new review", func(t *testing.T) {
-		// TODO - change to RemoveAll function from Repository layer
 		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
 
 		r1 := &entity.Review{
@@ -205,15 +220,97 @@ func TestUpdateReview(t *testing.T) {
 
 		review, errGetByID := m.GetReviewByID(id)
 		assert.Nil(t, errGetByID)
-		assert.Equal(t, "Title 1", review.Title)
+		assert.NotNil(t, review)
+		assert.False(t, review.IsPublished)
 
-		review.Title = "Different title"
 		errUpdate := m.UpdateReview(review)
 		assert.Nil(t, errUpdate)
 
 		updatedReview, errGetByID2 := m.GetReviewByID(id)
 
 		assert.Nil(t, errGetByID2)
-		assert.Equal(t, "Different title", updatedReview.Title)
+		assert.True(t, updatedReview.IsPublished)
+	})
+}
+
+func TestRateReview(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should have inserted a new rating", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.RATING_COLLECTION).RemoveAll(nil)
+
+		review := &entity.Review{
+			Title: "Title 1",
+		}
+
+		// TODO
+		reviewID, _ := m.StoreReview(review)
+
+		rating := &entity.Rating{
+			ReviewID: reviewID,
+			Rating:   5,
+		}
+
+		ratingID, err := m.RateReview(rating)
+
+		assert.Nil(t, err)
+		assert.NotNil(t, ratingID)
+		assert.Equal(t, true, util.IsValidID(ratingID.String()))
+	})
+}
+
+func TestFindAllRatings(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	m := New(pool, config.MONGODB_DATABASE)
+
+	t.Run("should have returned all Rating", func(t *testing.T) {
+		pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.RATING_COLLECTION).RemoveAll(nil)
+
+		review := &entity.Review{
+			Title: "Title 1",
+		}
+
+		// TODO
+		reviewID, _ := m.StoreReview(review)
+
+		rating := &entity.Rating{
+			ReviewID: reviewID,
+			Rating:   5,
+		}
+
+		ratingID, err := m.RateReview(rating)
+
+		assert.Nil(t, err)
+		assert.NotNil(t, ratingID)
+		assert.Equal(t, true, util.IsValidID(ratingID.String()))
+
+		ratings, err := m.FindAllRatings()
+		assert.Nil(t, err)
+		assert.NotNil(t, ratings)
+		assert.Equal(t, len(ratings), 1)
+	})
+
+	t.Run("should have returned error", func(t *testing.T) {
+		m = New(pool, "otherdatabase")
+		ratings, err := m.FindAllRatings()
+		assert.NotNil(t, err)
+		assert.Nil(t, ratings)
 	})
 }
