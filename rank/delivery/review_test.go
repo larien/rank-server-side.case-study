@@ -254,4 +254,150 @@ func TestReviewEndpoints(t *testing.T) {
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 	})
 
+	t.Run("should rate a Review", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"title": "Title 1"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		var review *entity.Review
+		json.NewDecoder(w.Body).Decode(&review)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(review.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"review_id": "` + review.ID.String() + `",
+			"rate": 5
+		  }`)
+		req, err = http.NewRequest(http.MethodPost, "/api/v1/reviews/rate", strings.NewReader(newPayload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		var rating *entity.Rating
+		json.NewDecoder(w.Body).Decode(&rating)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(rating.ID.String()))
+	})
+
+	t.Run("shouldnt rate a Review because of wrong syntax", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"title": "Title 1"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		var review *entity.Review
+		json.NewDecoder(w.Body).Decode(&review)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(review.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"review_id": "` + review.ID.String() + `",
+			"rate":
+		  }`)
+		req, err = http.NewRequest(http.MethodPost, "/api/v1/reviews/rate", strings.NewReader(newPayload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("shouldnt rate a Review because of unauthorized request", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{
+			"title": "Title 1"
+		  }`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		var review *entity.Review
+		json.NewDecoder(w.Body).Decode(&review)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(review.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"review_id": "` + review.ID.String() + `",
+			"rate":
+		  }`)
+		req, err = http.NewRequest(http.MethodPost, "/api/v1/reviews/rate", strings.NewReader(newPayload))
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	})
+
+	t.Run("should get Averate Rating by Reviews' ID", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		payload := fmt.Sprintf(`{"title": "Title 1"}`)
+		req, err := http.NewRequest(http.MethodPost, "/api/v1/reviews", strings.NewReader(payload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+
+		var review *entity.Review
+		json.NewDecoder(w.Body).Decode(&review)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(review.ID.String()))
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		w = httptest.NewRecorder()
+		newPayload := fmt.Sprintf(`{
+			"review_id": "` + review.ID.String() + `",
+			"rate": 5
+		  }`)
+		req, err = http.NewRequest(http.MethodPost, "/api/v1/reviews/rate", strings.NewReader(newPayload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		var rating1 *entity.Rating
+		json.NewDecoder(w.Body).Decode(&rating1)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(rating1.ID.String()))
+
+		w = httptest.NewRecorder()
+		newPayload = fmt.Sprintf(`{
+			"review_id": "` + review.ID.String() + `",
+			"rate": 5
+		  }`)
+		req, err = http.NewRequest(http.MethodPost, "/api/v1/reviews/rate", strings.NewReader(newPayload))
+		req.Header.Set("Authorization", exampleToken)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusCreated, w.Code)
+
+		var rating2 *entity.Rating
+		json.NewDecoder(w.Body).Decode(&rating2)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(rating2.ID.String()))
+
+		w = httptest.NewRecorder()
+		req, _ = http.NewRequest(http.MethodGet, "/api/v1/reviews/rate/"+review.ID.String(), nil)
+		router.ServeHTTP(w, req)
+
+		type averageRating struct {
+			Rate int `bson:"rate" json:"rate"`
+		}
+		var avRate averageRating
+		json.NewDecoder(w.Body).Decode(&avRate)
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, 3, avRate.Rate)
+	})
+
+	t.Run("shouldnt get Rating by Reviews' because of bad syntax", func(t *testing.T) {
+		w := httptest.NewRecorder()
+
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/reviews/rate/"+"adifhsghkfgiy", nil)
+		router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
 }

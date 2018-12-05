@@ -27,6 +27,8 @@ func SetReviewEndpoints(version *gin.RouterGroup, c controller.ReviewController)
 		endpoints.GET("", review.findAll)
 		endpoints.GET("/unpublished", review.findAllUnpublished)
 		endpoints.GET("/review/:id", review.getByID)
+		endpoints.GET("/rate/:id", review.getAverageRating)
+		endpoints.POST("/rate", review.rateReview)
 		endpoints.POST("", review.post)
 		endpoints.PATCH("", review.patch)
 		endpoints.DELETE("/review/:id", review.deleteByID)
@@ -192,5 +194,66 @@ func (r *Review) patch(c *gin.Context) {
 		gin.H{
 			"status":  http.StatusOK,
 			"message": "Review updated successfully!",
+		})
+}
+
+// getAverageRating handles GET /rate/:id request and returns a Review's average rating.
+func (r *Review) getAverageRating(c *gin.Context) {
+
+	id := c.Param("id")
+	if !util.IsValidID(id) {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Invalid ID",
+				"error":   util.ErrInvalidID,
+			})
+		return
+	}
+
+	rate, _ := r.Controller.GetAverageRating(util.StringToID(id))
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"status": http.StatusOK,
+			"rate":   rate,
+		})
+}
+
+// rateReview handles POST /rate request and rates an existent Review.
+func (r *Review) rateReview(c *gin.Context) {
+	if !authorizate(c.Request.Header.Get("Authorization")) {
+		c.JSON(
+			http.StatusUnauthorized,
+			gin.H{
+				"status":  http.StatusUnauthorized,
+				"message": "Unauthorized",
+			})
+		return
+	}
+
+	var rating *entity.Rating
+
+	if err := c.BindJSON(&rating); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "Failed to parse json",
+				"error":   err,
+			})
+		return
+	}
+
+	id, _ := r.Controller.RateReview(rating)
+
+	c.JSON(
+		http.StatusCreated,
+		gin.H{
+			"status":  http.StatusCreated,
+			"message": "Rating created successfully!",
+			"id":      id,
 		})
 }
