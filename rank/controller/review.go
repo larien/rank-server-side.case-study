@@ -57,3 +57,25 @@ func (r *Review) StoreReview(review *entity.Review) (util.Identifier, error) {
 func (r *Review) UpdateReview(review *entity.Review) error {
 	return r.Repository.UpdateReview(review)
 }
+
+// RateReview requests the Repository layer for the insertion of a new Rating in the database.
+func (r *Review) RateReview(rating *entity.Rating) (util.Identifier, error) {
+	return r.Repository.RateReview(rating)
+}
+
+// FindRatingsByReview returns all Ratings from a certain Review.
+func (r *Review) FindRatingsByReview(reviewID util.Identifier) ([]*entity.Rating, error) {
+	return r.Repository.FindRatingsByReview(reviewID)
+}
+
+// GetAverageRating calculates all the ratings received by a review and returns its average rating.
+func (r *Review) GetAverageRating(reviewID util.Identifier) (int, error) {
+	ratings, _ := r.FindRatingsByReview(reviewID)
+
+	var sum int
+	for _, v := range ratings {
+		sum += v.Rate
+	}
+
+	return sum / len(ratings), nil
+}

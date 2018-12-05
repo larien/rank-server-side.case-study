@@ -33,7 +33,10 @@ func TestFindAllReviews(t *testing.T) {
 		Title: "Title 1",
 	}
 
-	controller.StoreReview(r1)
+	id, _ := controller.StoreReview(r1)
+
+	r1.ID = id
+	controller.UpdateReview(r1)
 
 	t.Run("should return inserted review with 'Title 1' as title", func(t *testing.T) {
 		reviews, err := controller.FindAllReviews()
@@ -100,7 +103,7 @@ func TestStoreReview(t *testing.T) {
 	})
 
 	t.Run("should have inserted new review", func(t *testing.T) {
-		reviews, errFindAll := controller.FindAllReviews()
+		reviews, errFindAll := controller.FindAllUnpublishedReviews()
 		assert.Nil(t, errFindAll)
 		assert.Equal(t, 1, len(reviews))
 	})
@@ -181,7 +184,7 @@ func TestUpdateReview(t *testing.T) {
 
 	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.REVIEW_COLLECTION).RemoveAll(nil)
 
-	t.Run("should update Review title", func(t *testing.T) {
+	t.Run("should update Review", func(t *testing.T) {
 
 		r1 := &entity.Review{
 			Title: "Title 1",
@@ -191,14 +194,149 @@ func TestUpdateReview(t *testing.T) {
 
 		review, errGetByID := controller.GetReviewByID(id)
 		assert.Nil(t, errGetByID)
-		assert.Equal(t, "Title 1", review.Title)
+		assert.NotNil(t, review)
+		assert.False(t, review.IsPublished)
 
-		review.Title = "Different title"
 		err := controller.UpdateReview(review)
 		assert.Nil(t, err)
 
-		updatedReview, errGetByID2 := controller.GetReviewByID(id)
+		updatedReview, errGetByID2 := controller.GetReviewByID(review.ID)
 		assert.Nil(t, errGetByID2)
-		assert.Equal(t, "Different title", updatedReview.Title)
+		assert.True(t, updatedReview.IsPublished)
+	})
+}
+
+func TestRateReview(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	repo := repository.New(pool, config.MONGODB_DATABASE)
+
+	controller := newReviewController(repo)
+
+	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.RATING_COLLECTION).RemoveAll(nil)
+
+	r1 := &entity.Review{
+		Title: "Title 1",
+	}
+
+	t.Run("should have inserted Rating", func(t *testing.T) {
+		reviewID, err := controller.StoreReview(r1)
+		assert.Nil(t, err)
+		assert.Equal(t, true, util.IsValidID(reviewID.String()))
+
+		rating := &entity.Rating{
+			ReviewID: reviewID,
+			Rate:     5,
+		}
+
+		ratingID, err := controller.RateReview(rating)
+		assert.Nil(t, err)
+		assert.Equal(t, true, util.IsValidID(ratingID.String()))
+	})
+}
+
+func TestFindRatingsByReview(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	repo := repository.New(pool, config.MONGODB_DATABASE)
+
+	controller := newReviewController(repo)
+
+	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.RATING_COLLECTION).RemoveAll(nil)
+
+	r1 := &entity.Review{
+		Title: "Title 1",
+	}
+
+	t.Run("should have found Ratings by Review", func(t *testing.T) {
+		reviewID, err := controller.StoreReview(r1)
+		assert.Nil(t, err)
+		assert.Equal(t, true, util.IsValidID(reviewID.String()))
+
+		rating1 := &entity.Rating{
+			ReviewID: reviewID,
+			Rate:     5,
+		}
+
+		rating2 := &entity.Rating{
+			ReviewID: reviewID,
+			Rate:     4,
+		}
+
+		ratingID1, err := controller.RateReview(rating1)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(ratingID1.String()))
+		ratingID2, err := controller.RateReview(rating2)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(ratingID2.String()))
+
+		ratings, err := controller.FindRatingsByReview(reviewID)
+		assert.Nil(t, err)
+		assert.Equal(t, 2, len(ratings))
+	})
+}
+
+func TestGetAverageRating(t *testing.T) {
+	session, err := mgo.Dial(config.MONGODB_HOST)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer session.Close()
+
+	pool := mgosession.NewPool(nil, session, config.MONGODB_CONNECTION_POOL)
+	defer pool.Close()
+
+	repo := repository.New(pool, config.MONGODB_DATABASE)
+
+	controller := newReviewController(repo)
+
+	pool.Session(nil).DB(config.MONGODB_DATABASE).C(config.RATING_COLLECTION).RemoveAll(nil)
+
+	r1 := &entity.Review{
+		Title: "Title 1",
+	}
+
+	t.Run("should have found Ratings by Review", func(t *testing.T) {
+		reviewID, err := controller.StoreReview(r1)
+		assert.Nil(t, err)
+		assert.Equal(t, true, util.IsValidID(reviewID.String()))
+
+		rating1 := &entity.Rating{
+			ReviewID: reviewID,
+			Rate:     5,
+		}
+
+		rating2 := &entity.Rating{
+			ReviewID: reviewID,
+			Rate:     4,
+		}
+
+		ratingID1, err := controller.RateReview(rating1)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(ratingID1.String()))
+		ratingID2, err := controller.RateReview(rating2)
+		assert.Nil(t, err)
+		assert.True(t, util.IsValidID(ratingID2.String()))
+
+		rate, err := controller.GetAverageRating(reviewID)
+		assert.Nil(t, err)
+
+		expectedRate := (rating1.Rate + rating2.Rate) / 2
+
+		assert.Equal(t, expectedRate, rate)
 	})
 }
