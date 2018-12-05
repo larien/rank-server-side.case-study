@@ -19,6 +19,8 @@ type ReviewController interface {
 	GetReviewByID(util.Identifier) (*entity.Review, error)
 	StoreReview(*entity.Review) (util.Identifier, error)
 	UpdateReview(*entity.Review) error
+	RateReview(rating *entity.Rating) (util.Identifier, error)
+	GetAverageRating(reviewID util.Identifier) (int, error)
 }
 
 // newReviewController creates a new Review Controller.
