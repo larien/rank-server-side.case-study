@@ -339,4 +339,14 @@ func TestGetAverageRating(t *testing.T) {
 
 		assert.Equal(t, expectedRate, rate)
 	})
+
+	t.Run("should have returned 0 because no Ratings were created", func(t *testing.T) {
+		reviewID, err := controller.StoreReview(r1)
+		assert.Nil(t, err)
+		assert.Equal(t, true, util.IsValidID(reviewID.String()))
+
+		rate, err := controller.GetAverageRating(reviewID)
+		assert.Nil(t, err)
+		assert.Equal(t, 0, rate)
+	})
 }

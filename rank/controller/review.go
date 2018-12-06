@@ -74,6 +74,10 @@ func (r *Review) FindRatingsByReview(reviewID util.Identifier) ([]*entity.Rating
 func (r *Review) GetAverageRating(reviewID util.Identifier) (int, error) {
 	ratings, _ := r.FindRatingsByReview(reviewID)
 
+	if len(ratings) == 0 {
+		return 0, nil
+	}
+
 	var sum int
 	for _, v := range ratings {
 		sum += v.Rate

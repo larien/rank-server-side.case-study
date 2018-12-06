@@ -12,6 +12,7 @@ type Review struct {
 	Title           string          `bson:"title" json:"title"`
 	AuthorNickname  string          `bson:"author_nickname" json:"author_nickname"`
 	PublicationDate time.Time       `bson:"publication_date" json:"publication_date"`
+	AverageRating   int             `bson:"average_rating" json:"average_rating"`
 	UpdatedAt       time.Time       `bson:"updated_at" json:"updated_at"`
 	ReadingTime     string          `bson:"reading_time" json:"reading_time"`
 	TextReview      string          `bson:"text_review" json:"text_review"`

@@ -120,6 +120,9 @@ func (r *Review) getByID(c *gin.Context) {
 	bson := util.StringToID(id)
 	review, _ := r.Controller.GetReviewByID(bson)
 
+	rate, _ := r.Controller.GetAverageRating(bson)
+	review.AverageRating = rate
+
 	c.JSON(
 		http.StatusOK,
 		gin.H{
