@@ -5,9 +5,7 @@ Server-side code for Rank, a game review webapp. Project assigned to Lauren Ferr
 ## Summary
 
 1. Technologies
-2. Domain Driven Design
-3. Architecture
-4. Release status
+2. Release status
 
 ## Technologies
 
@@ -15,14 +13,6 @@ Server-side code for Rank, a game review webapp. Project assigned to Lauren Ferr
 - Database: [MongoDB](https://www.mongodb.com/) with [mgo](https://labix.org/mgo) as driver
 - Router: [Gin](https://github.com/gin-gonic/gin)
 - Testing: [Testify](https://github.com/stretchr/testify)
-
-## Domain Driven Design
-
-[Available here](https://docs.google.com/presentation/d/1nBIUcWTXXqndFfDXDOfrQGKHIihbLQWOiP0QBTopZkA/edit?usp=sharing)
-
-## Architecture
-
-[Available here](https://docs.google.com/presentation/d/1NH4MO2jpQqeA6e5S5kc4Rm53hldadl02HEhDqEecSks/edit?usp=sharing)
 
 ## Release Status
 
